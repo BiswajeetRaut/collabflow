@@ -1,0 +1,8 @@
+.overview__part{
+    width:90%;
+    height:100%;
+    position:absolute;
+    top:90px;
+    overflow-y:auto;
+    padding-bottom: 80px;
+}

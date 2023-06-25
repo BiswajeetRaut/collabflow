@@ -1,0 +1,16 @@
+@media (max-width: 1000px) {
+    .discussion__page{
+        height:80% !important;
+    }
+    .input{
+        transform: scale(0.8);
+    }
+
+    .input>button{
+        height: 40px;
+        font-size: 12px;
+    }
+    .chat__section{
+        height:55% !important;
+    }
+  }

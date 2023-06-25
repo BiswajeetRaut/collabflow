@@ -1,0 +1,20 @@
+.register_button{
+    cursor: pointer;
+}
+.register_button:hover{
+    border: 1px solid gray;
+    border-radius: 10px;
+}
+.login_button{
+    cursor: pointer;
+}
+.login_button:hover{
+    background: black;
+    color:white;
+}
+.landing__page{
+    background-image: url('../assets/landing.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}

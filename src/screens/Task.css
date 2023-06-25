@@ -1,0 +1,19 @@
+@media (max-width: 800px) {
+    .task__page{
+     flex-direction: column;
+    }
+    .right__section{
+        width:100% !important;
+        height:50% !important;
+    }
+  }
+.task__page{
+    background: url('../assets/tasks.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.right__section{
+    width:50%;
+    height:100%;
+}

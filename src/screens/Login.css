@@ -1,0 +1,6 @@
+.login__page{
+    background-image: url('../assets/landing.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}

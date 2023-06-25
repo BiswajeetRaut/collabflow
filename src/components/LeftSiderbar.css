@@ -1,0 +1,14 @@
+.toggler{
+    background: black;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 210px;
+    cursor: pointer;
+}
+.close{
+    position:relative;
+    left:-200px;
+}
