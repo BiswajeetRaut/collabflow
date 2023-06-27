@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import LeftSidebar from '../components/LeftSidebar'
 import HomeNavbar from '../components/HomeNavbar'
 import './Home.css';
@@ -12,9 +12,23 @@ import Discussion from '../components/Discussion';
 import Mentions from '../components/Mentions';
 import {AiFillWechat} from 'react-icons/ai';
 import ChatGPT from '../modals/Chatgpt';
-import Meet from './Meet';
+import {useSelector} from 'react-redux';
+import { selectUserName } from '../features/user/userSlice';
+import { selectProjectId } from '../features/project/projectSlice';
+import db from '../firebase';
 const Home = () => {
     const {id} = useParams();
+    const userName = useSelector(selectUserName);
+    const projectId = useSelector(selectProjectId);
+    const [project,setproject]=useState({});
+    console.log("projectId"+projectId);
+    useEffect(() => {
+        // db.collection('Projects').doc(projectId).get().then(res=>{
+        //     if(res.exists){
+        //         setproject(res.data());
+        //     }
+        // })
+    }, [projectId,]);
     const [chatgpt,setchatgpt]=useState(false);
     const [messages,setMessages]=useState([]);
     const [responses,setResponses] = useState([{
@@ -36,7 +50,7 @@ const Home = () => {
         }}>
         <HomeNavbar/>
         {
-            id==1 ? <Overview/>: id == 2 ?<Teams/> : id==3 ? <Task/> :id==4 ?<Meet/> : <Discussion/>
+            projectId!=''?id==1 ? <Overview/>: id == 2 ?<Teams/> : id==3 ? <Task/> :id==4 ?<Timeline/> :<Discussion/>: <>Select a Project From the Sidebar Or start a new one.</>
         }
         </div>
         <div className="calender_part">

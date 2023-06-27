@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-
-const AddMember = ({ member,setmember }) => {
+import React, { useEffect, useState } from 'react';
+import { selectProjectId } from '../features/project/projectSlice';
+import {useSelector} from 'react-redux';
+import db from '../firebase';
+const AddMember = ({ member,setmember,teamid}) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [members, setMembers] = useState([
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    { id: 3, name: 'Robert Johnson' },
-    { id: 4, name: 'Emily Davis' },
-  ]);
+  const [members, setMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
   const [designation, setDesignation] = useState('');
-
+  const projectId = useSelector(selectProjectId);
+  useEffect(()=>{
+    var documents=[];
+    db.collection('Users').onSnapshot(snapshot=>{
+      snapshot.docs.forEach((doc)=>{
+        var temp=doc.data();
+        temp.id=doc.id;
+        documents.push(temp);
+      })
+      setMembers(documents);
+    })
+  },[]);
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -29,7 +37,33 @@ const AddMember = ({ member,setmember }) => {
     console.log('Designation:', designation);
     
     //db calling part here 
-
+    db.collection('Projects').doc(projectId).collection('Teams').doc(teamid).get().then((res)=>{
+      var teammembers = res.data().members;
+      var temp = selectedMember;
+      temp.designation = designation;
+      teammembers.push(temp);
+      console.log('Teammembers:', teammembers);
+      db.collection('Projects').doc(projectId).collection('Teams').doc(teamid).update({
+        members: teammembers,
+      }).then(()=>{
+        db.collection('Projects').doc(projectId).get().then((res)=>{
+          var flag = true;
+          var projectmembers = res.data().members;
+          res.data().members.forEach((member)=>{
+            if(member.id == temp.id)
+            {
+              flag = false;
+            }
+          })
+          if(flag)
+          {
+            db.collection('Projects').doc(projectId).update({
+              members:[...projectmembers,selectedMember],
+            }).then((res)=>{}).catch((err)=>{});
+          }
+        })
+      }).catch((err) => {alert(err);});
+    })
     setmember(!member);
   };
 
@@ -58,7 +92,7 @@ const AddMember = ({ member,setmember }) => {
                     onChange={() => handleMemberSelection(member)}
                     className="text-indigo-500 focus:ring-indigo-500 h-4 w-4"
                   />
-                  <img class="w-8 h-8 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/helene-engels.png" alt="Helene Avatar"/>
+                  <img class="w-8 h-8 rounded-full" src={member?.photo} alt="profile Photo"/>
                   <span className="text-gray-900">{member.name}</span>
                 </label>
               ))}

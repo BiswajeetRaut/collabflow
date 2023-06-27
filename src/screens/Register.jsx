@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import './Register.css';
 const Register = () => {
-  const history = useHistory()
   const [organization, setOrganization] = useState('');
   const [adminName, setAdminName] = useState('');
   const [adminUsername, setAdminUsername] = useState('');
@@ -47,7 +45,7 @@ const Register = () => {
           Register your organization
         </h1>
         <p className="text-FFFAE5 text-center mb-8">
-          Already registered? <a href="/" className="text-FFFAE5 underline" onClick={()=>history.push('/login')}>Login</a>
+          Already registered? <a href="/" className="text-FFFAE5 underline">Login</a>
         </p>
         <form className="max-w-md mx-auto bg-transparent/25 rounded-lg shadow-lg p-8" onSubmit={handleSubmit}>
           <div className="mb-6">

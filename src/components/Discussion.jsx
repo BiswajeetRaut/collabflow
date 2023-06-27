@@ -1,11 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Discussion.css';
 import { Button } from 'flowbite-react';
+import {useSelector} from 'react-redux';
+import { selectProjectId } from '../features/project/projectSlice';
+import db from '../firebase';
+import { selectUserName, selectUserPhoto } from '../features/user/userSlice';
+import firebase from 'firebase';
 const Discussion = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-
+  const projectId = useSelector(selectProjectId);
+  const userPhoto = useSelector(selectUserPhoto);
+  const userName = useSelector(selectUserName);
+  const change = useState(true);
+  const [mentions,setMentions] = useState([]);
+  useEffect(()=>{
+    db.collection('Projects').doc(projectId).get().then((res)=>{
+      setMentions(res.data());
+    })
+  },[])
+  useEffect(()=>{
+    db.collection('Projects').doc(projectId).collection('Discussions').orderBy('timestamp','asc').onSnapshot((snapshot)=>{
+      var documents = [];
+      snapshot.docs.forEach((doc)=>{
+        var temp = doc.data();
+        temp.id = doc.id;
+        documents.push(temp);
+      })
+      setMessages(documents);
+    })
+  },[change]);
+  const [mention,setmention]=useState('');
   const handleNewMessageChange = (e) => {
+    if(e.target.value[e.target.value.length-1] == '@' || mention!='')
+    {
+      
+    }
     setNewMessage(e.target.value);
   };
 
@@ -14,13 +44,17 @@ const Discussion = () => {
     {
       return;
     }
+    // const date = new Date('2023-06-30');
     const newMessageObj = {
-      text: newMessage,
-      sender: 'John Doe',
-      timestamp: new Date().toLocaleString(),
+      message: newMessage,
+      name: userName,
+      photo: userPhoto,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      // customTimeStamp: firebase.firestore.Timestamp.fromDate(date),
     };
-
-    setMessages([...messages, newMessageObj]);
+    db.collection('Projects').doc(projectId).collection('Discussions').add(newMessageObj).then(()=>{}).catch(()=>{
+      alert('something went wrong');
+    });
     setNewMessage('');
   };
 
@@ -30,14 +64,16 @@ const Discussion = () => {
       <div className="chats__section flex flex-col gap-2 justify-start items-start overflow-y-auto px-5" style={{height:`65%`,width:`96%`}}>
         {messages.length ==0 ? (<>There are no Messages yet</>):messages.map(message=>{
           return(
-            <div className="chat flex flex-row gap-2">
-              <img src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/helene-engels.png" className='w-10 h-10 rounded-full' alt="" />
+            <div className="chat flex flex-row gap-2 mt-2 bg-purple-300 bg-opacity-30 rounded-lg px-2 py-2 shadow-md">
+              <img src={message.photo} className='w-8 h-8 rounded-full mt-auto mb-auto' alt="" />
               <div className='flex flex-col'>
-              <div className="message text-md font-bold">{message.text}</div>
               <div className="message_details flex flex-row text-xs gap-2">
-                <div>{message.sender}</div>
-                <div>{message.timestamp}</div>
+                <div>{message.name}</div>
+                <div>{
+                  new Date(message.timestamp?.toDate().toISOString()).toLocaleString()
+                }</div>
               </div>
+              <div className="message text-sm">{message.message}</div>
               </div>
             </div>
           )

@@ -23,7 +23,7 @@ const HomeNavbar = () => {
         <div className="flex items-center justify-center md:justify-start">
           <div className="flex space-x-4">
             <a
-              href="/home/1"
+              href="/"
               className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
@@ -32,7 +32,7 @@ const HomeNavbar = () => {
               Overview
             </a>
             <a
-              href="/home/2"
+              href="/"
               className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
@@ -41,7 +41,7 @@ const HomeNavbar = () => {
               Teams
             </a>
             <a
-              href="/home/3"
+              href="/"
               className="text-FFFAE5 hover:text-white  hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
@@ -50,16 +50,16 @@ const HomeNavbar = () => {
               Tasks
             </a>
             <a
-              href="/home/4"
+              href="/"
               className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}
             >
-              Meet
+              Timeline
             </a>
             <a
-              href="/home/5"
+              href="/"
               className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,

@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
-
+import { selectProjectId } from '../features/project/projectSlice';
+import {useSelector} from 'react-redux'
+import db from '../firebase';
 const AddTeam = ({ team,setteam }) => {
   const [teamName, setTeamName] = useState('');
 
   const handleTeamNameChange = (e) => {
     setTeamName(e.target.value);
   };
-
+  const projectId= useSelector(selectProjectId);
   const handleAddTeam = () => {
     // Perform add team logic here
     console.log('Team Name:', teamName);
+    db.collection('Projects').doc(projectId).collection('Teams').add({
+      name: teamName,
+      members:[],
+    }).then(()=>{
+
+    }).catch((err)=>{
+      alert(err.message);
+    })
     setteam(!team);
   };
 

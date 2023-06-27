@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import Mentions from './Mentions';
-import Calendar from './Calender';
 
 const RightSidebar = () => {
   const [rightoption, setrightoption] = useState(true);
@@ -59,7 +58,7 @@ const RightSidebar = () => {
     <div className="right__content py-8" style={{overflowY:`auto`,
     width:`80%`,
     }}>
-      {rightoption?<Calendar/>:
+      {rightoption?<></>:
       <Mentions/>
       }
     </div>

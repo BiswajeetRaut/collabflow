@@ -2,50 +2,42 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## About Project
+## Available Scripts
 
-Collaborative Project Management Tool
-collabFlow is a robust web-based collaborative project management tool designed to streamline project management, enhance team collaboration, and maximize productivity within organizations. This powerful tool provides a centralized platform for efficient project planning, task assignment, progress tracking, communication, and collaboration.
-Key Features:
-1. User Authentication and Dashboard:
-    * Secure login system with user authentication.
-    * Personalized dashboard displaying today's tasks, completed tasks, mentions, and a calendar overview.
-    * Quick access to project-related information and updates.
-2. Project Creation and Management:
-    * Company administrators can create new projects with customizable details and settings.
-    * Creation of multiple groups within each project for effective task distribution.
-    * Easy assignment of tasks to specific groups or individuals.
-    * Project progress tracking with visual indicators and status updates.
-3. Task Management:
-    * Creation of tasks with detailed descriptions, deadlines, and priority levels.
-    * Ability to create subtasks within tasks for better task breakdown and management.
-    * Real-time updates on task progress and completion status.
-    * Automated reminders for upcoming deadlines.
-4. Discussion Forums and Collaboration:
-    * Dedicated discussion forums for each project and task.
-    * Interactive commenting system for team members to exchange ideas, ask questions, and provide feedback.
-    * @Mention functionality to notify specific users or groups in discussions.
-    * Seamless file and document sharing to facilitate collaboration.
-5. Notifications and Reminders:
-    * Personalized notifications for new tasks, task updates, and mentions.
-    * Real-time alerts for approaching deadlines or task dependencies.
-    * Email notifications for important updates and discussions.
-6. Audio and Video Calling:
-    * Integrated audio and video calling features for instant communication and collaboration.
-    * Initiate one-on-one or group calls directly within collabFlow.
-    * Screen sharing capabilities to facilitate presentations and remote collaboration.
-7. Reporting and Analytics:
-    * Comprehensive reporting capabilities to track project progress, task completion rates, and team performance.
-    * Visual analytics and charts to monitor key project metrics and identify areas for improvement.
-    * Exportable reports for further analysis or sharing with stakeholders.
-8. Customizable Settings and Permissions:
-    * Flexible user and group management with customizable roles and permissions.
-    * Fine-grained control over who can create, edit, or view projects and tasks.
-    * Privacy settings for sensitive project information and discussions.
-9. Mobile Compatibility:
-    * Mobile-responsive design and optimized user experience for seamless access on smartphones and tablets.
-    * Native mobile app options for iOS and Android platforms for on-the-go productivity.
-collabFlow aims to revolutionize project management by providing a comprehensive and collaborative platform that improves team efficiency, encourages effective communication, and facilitates seamless task execution. With its intuitive interface, powerful features, and robust capabilities, collabFlow empowers organizations to achieve their project goals with ease
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
 ## Learn More
 

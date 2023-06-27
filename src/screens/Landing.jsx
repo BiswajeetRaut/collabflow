@@ -1,7 +1,80 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Landing.css';
 import landing from '../assets/landing.png'
+import {FaGoogle} from 'react-icons/fa';
+import { selectUserName,
+  selectUserPhoto,
+  setUserLoginDetails,
+  setSignOutState } from '../features/user/userSlice.js';
+import {useDispatch,useSelector} from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import db from '../firebase';
+import {auth,provider} from '../firebase';
 const Landing = () => {
+  const dispatch= useDispatch();
+  const history= useHistory();
+  const userName = useSelector(selectUserName);
+  const userPhoto= useSelector(selectUserPhoto);
+  // useEffect(()=>{
+  //   auth.onAuthStateChanged(async(user)=>{
+  //     if(user){
+  //       setUser(user)
+  //       history.push("/home/1");
+  //     }
+  //   })
+  // },[userName]);
+  const handle= ()=>{
+    console.log(userName);
+    auth.signInWithPopup(provider).then((result)=>{
+      setUser(result.user);
+    }).catch((error)=>{
+      alert(error.message);
+    });
+  }
+  const setUser=(user)=>{
+    console.log(user.email);
+    db.collection('Users').where('email','==',user.email).get()
+    .then((res)=>{
+      var id;
+      if(res.docs.length>0)
+      {
+        id=res.docs[0].id;
+        dispatch(
+          setUserLoginDetails({
+            name: user.displayName,
+            id: id,
+            photo: user.photoURL,
+            email:user.email,
+          }
+          )
+        )
+        history.push('/home/1');
+      }
+      else if (res.docs.length ==0){
+        db.collection('Users').add({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        }).then((docRef)=>{
+          dispatch(
+            setUserLoginDetails({
+              name: user.displayName,
+              id: docRef.id,
+              photo: user.photoURL,
+              email:user.email,
+            }
+            )
+          )
+          history.push('/home/1');
+        }).catch((e)=>{
+          console.log(e);
+        })
+      }
+
+    }).catch((e)=>{
+      console.log(e.message);
+    })
+}
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-gradient-to-br from-FC95B4 to-FFCE62 landing__page">
       <header className="bg-transparent w-full py-8 px-8">
@@ -17,11 +90,12 @@ const Landing = () => {
           Manage and collaborate in your projects with CollabFlow
         </h1>
         <div className="flex space-x-4 mb-12">
-          <a  className="bg-EB7B26  text-FFFAE5 py-3 px-6 rounded-lg font-bold text-lg transition duration-300 ease-in-out register_button">
-            Register
-          </a>
-          <a className="bg-transparent border border-EB7B26  text-EB7B26  py-3 px-6 rounded-lg font-bold text-lg transition duration-300 ease-in-out login_button">
-            Login
+          <a className="bg-transparent border border-EB7B26  text-EB7B26  py-3 px-6 rounded-lg font-bold text-lg transition duration-300 ease-in-out login_button flex justify-center items-center gap-2"
+          onClick={()=>{
+          handle();
+        }}
+          >
+          <FaGoogle/> Continue With Google
           </a>
         </div>
         <p className="text-FFFAE5 text-center mb-8">
