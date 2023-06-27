@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import './ProjectForm.css';
 import Datepicker from "react-tailwindcss-datepicker";
-
+import db from '../firebase';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux'
+import firebase from 'firebase';
+import { useHistory } from 'react-router-dom'
+import { selectUserId, selectUserName, selectUserPhoto } from '../features/user/userSlice';
+import { setProject } from '../features/project/projectSlice';
 const AddProject = () => {
-  const [value, setValue] = useState({
+  const history = useHistory();
+  const dispatch = useDispatch()
+  const user = {}
+  user.id = useSelector(selectUserId)
+  user.name = useSelector(selectUserName)
+  user.photo = useSelector(selectUserPhoto)
+  const [dates, setValue] = useState({
     startDate: new Date(),
     endDate: new Date().setMonth(11)
   });
@@ -12,21 +24,31 @@ const AddProject = () => {
     console.log("newValue:", newValue);
     setValue(newValue);
   }
-  const [People, setPeople] = useState([
-    { name: 'John Doe', dp: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { name: 'Jane Smith', dp: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { name: 'David Johnson', dp: 'https://randomuser.me/api/portraits/men/3.jpg' },
-    { name: 'Emma Williams', dp: 'https://randomuser.me/api/portraits/women/4.jpg' },
-    // Add more people as needed
-  ]);
+  const [People, setPeople] = useState([]);
   const [projectName, setProjectName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([user]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPeople, setFilteredPeople] = useState(People);
-
+  const getPeople = () => {
+    db.collection('Users').onSnapshot((snapshot) => {
+      var documents = [];
+      snapshot.docs.forEach((doc) => {
+        var temp = doc.data();
+        temp.id = doc.id;
+        if (doc.id != user?.id)
+          documents.push(temp);
+      })
+      setPeople(documents)
+      setFilteredPeople(documents)
+    })
+  }
+  useEffect(() => {
+    getPeople()
+  }, [])
+  console.log(selectedMembers)
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     filterPeople(e.target.value);
@@ -74,13 +96,28 @@ const AddProject = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Perform form submission logic here
+    if (dates.startDate == null || dates.endDate == null) {
+      alert("please enter dates")
+      return
+    }
+    const startdate = new Date(dates.startDate)
+    const enddate = new Date(dates.endDate)
+    db.collection('Projects').add({
+      name: projectName,
+      startDate: firebase.firestore.Timestamp.fromDate(startdate),
+      endDate: firebase.firestore.Timestamp.fromDate(enddate),
+      admin: selectedMembers,
+      members: selectedMembers
+    }).then((res) => {
+      // console.log(res.id)
+      dispatch(setProject({ id: res.id }))
+      history.push('/home/1')
+    })
+      .catch((err) => {
+        console.log(err)
+      })
     console.log('Form submitted');
-    console.log('Project Name:', projectName);
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    console.log('Selected Members:', selectedMembers);
+
   };
 
   const closeModal = () => {
@@ -106,6 +143,7 @@ const AddProject = () => {
               onChange={handleInputChange}
               className="w-full px-4 py-2 border-b border-FFFAE5 bg-transparent text-gray-900 focus:outline-none focus:border-EB7B26 focus:ring-2 focus:ring-EB7B26"
               placeholder="Enter project name"
+              required
             />
           </div>
           <div className="mb-6">
@@ -114,7 +152,7 @@ const AddProject = () => {
             </label>
             <Datepicker
               primaryColor={"fuchsia"}
-              value={value}
+              value={dates}
               onChange={handleValueChange}
               showShortcuts={true}
             />
@@ -126,7 +164,7 @@ const AddProject = () => {
             <div className="selected-members">
               {selectedMembers.map((member, index) => (
                 <div key={index} className="selected-member">
-                  <img src={member.dp} alt={member.name} className="member-image" />
+                  <img src={member.photo} alt={member.name} className="member-image" />
                 </div>
               ))}
             </div>
@@ -135,7 +173,7 @@ const AddProject = () => {
               className="add-members-button button"
               onClick={handleAddMembers}
             >
-              Add Members
+              Add Admins
             </button>
           </div>
           <div className="submit-button button">
@@ -174,7 +212,7 @@ const AddProject = () => {
                   className="member-card"
                   onClick={() => handleMemberSelection(person, index)}
                 >
-                  <img src={person.dp} alt={person.name} className="member-card-image" />
+                  <img src={person.photo} alt={person.name} className="member-card-image" />
                   <p className="member-card-name">{person.name}</p>
                 </div>
               ))}

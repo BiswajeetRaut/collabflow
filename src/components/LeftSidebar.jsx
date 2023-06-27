@@ -85,9 +85,9 @@ export default function LeftSidebar() {
           <Sidebar.Item
             icon={HiChartPie}
           >
-            <p>
+            <a onClick={()=>history.push('/dashboard')}>
               Dashboard
-            </p>
+            </a>
           </Sidebar.Item>
           <Sidebar.Collapse
             icon={FaProjectDiagram}
@@ -109,10 +109,10 @@ export default function LeftSidebar() {
             }
           <Sidebar.Item
           >
-            <p style={{display:`flex`,gap:`5px`,alignItems:`center`,justifyContent:`center`}}>
+            <a style={{display:`flex`,gap:`5px`,alignItems:`center`,justifyContent:`center`}}  onClick={() => history.push('/addProject')}>
              New Project
              <FaPlus></FaPlus>
-            </p>
+            </a >
           </Sidebar.Item>
           </Sidebar.Collapse>
           <Sidebar.Item
