@@ -1,0 +1,104 @@
+.cont {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* background-image: url(http://localhost:3000/static/media/bg.f95d940….png); */
+    top: 90px;
+    bottom: 0;
+    left: 18px;
+    width: 100%;
+    padding-right: 30px;
+}
+
+.meet-icon {
+    flex: 1;
+}
+
+.cont-body {
+    height: 100%;
+    width: 100%;
+}
+
+.meet-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+}
+
+.navbar {
+    display: flex;
+    border-bottom: 1px solid #422a5d;
+    width: 95%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 50px;
+}
+
+.butt .button {
+    margin: 8px;
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 6px 10px;
+    font-weight: 400;
+    color: rgb(0, 0, 0);
+}
+
+.butt .button:hover {
+    background-color: #422a5d;
+    color: white
+}
+
+.meet-dates {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.but {
+    margin-top: 10px;
+}
+
+.but .button {
+    margin: 5px;
+}
+
+.head {
+    color: rgb(0, 0, 0);
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.meet-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.meet-name {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.meet-history-cont {
+    padding: 10px;
+    width: 95%;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.21);
+    display: flex;
+    align-items: center;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    color: #000000;
+    backdrop-filter: blur(7.6px);
+    -webkit-backdrop-filter: blur(7.6px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    margin: 8px 2px;
+}
+
+.txt {
+    margin-left: 7px;
+    flex: 35;
+}

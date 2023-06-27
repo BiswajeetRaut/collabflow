@@ -1,0 +1,208 @@
+/* Form.css */
+
+.form__page {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    background-image: url('D:\program\vs-programs\Colabflow\collabflow\assets\bg.png');
+}
+
+.containar {
+    width: 75%;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.29);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.76);
+}
+
+
+.heading {
+    display: flex;
+    color: #000000;
+    font-size: 2rem;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+    justify-content: center;
+}
+
+form {
+    /* Adjust the shadow properties */
+    border-radius: 10px;
+    padding: 40px;
+    text-align: left;
+}
+
+input[type="date"] {
+    padding: 10px;
+    margin: 7px;
+    border: none;
+    border-bottom: 2px solid #FFFAE5;
+    background-color: transparent;
+    color: #333333;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 7px;
+    border: 1px solid #ccc;
+    background-color: transparent;
+    color: #333333;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]::placeholder,
+input[type="date"]::placeholder {
+    color: #666666;
+}
+
+.modal-search input {
+    border-bottom: 1px solid #000000;
+    margin-bottom: 30px;
+    width: 85%;
+}
+
+
+.but {
+    text-align: center;
+}
+
+.button {
+    background-color: transparent;
+    border: 2px solid #808080;
+    color: #808080;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.add-members-button {
+    background-color: #ffffff;
+    color: #8740b7;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.add-members-button:hover {
+    background-color: #8740b7;
+    color: #ffffff;
+}
+
+.selected-members {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1rem;
+}
+
+.selected-member {
+    display: flex;
+    align-items: center;
+    margin-right: 0.5rem;
+}
+
+.member-image {
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+}
+
+.modal-container {
+    max-width: 90vh;
+    min-width: 502px;
+    min-height: 200px;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+.modal-close {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #000000;
+    transition: color 0.3s ease-in-out;
+}
+
+.modal-close:hover {
+    color: #ffffff;
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.member-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.member-card-image {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+}
+
+.member-card-name {
+    font-size: 1rem;
+    color: #000000;
+}

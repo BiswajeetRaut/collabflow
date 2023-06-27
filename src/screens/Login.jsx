@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './Login.css';
-
+import { useHistory } from 'react-router-dom';
 const Login = () => {
+  const navigate = useHistory()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -34,7 +35,7 @@ const Login = () => {
           Login to your account
         </h1>
         <p className="text-FFFAE5 text-center mb-5 ">
-          Not registered yet? <a className="text-EB7B26 underline">Register</a>
+          Not registered yet? <a className="text-EB7B26 underline" onClick={() => navigate.push('/register')}>Register</a>
         </p>
         <form className="max-w-md mx-auto bg-transparent rounded-lg shadow-lg p-8" onSubmit={handleSubmit}>
           <div className="mb-6">

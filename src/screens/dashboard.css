@@ -1,0 +1,186 @@
+.dashboard {
+    display: flex;
+    justify-content: space-between;
+    width: 98vw;
+    margin-top: 10px;
+    border-radius: 15px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.26);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.showProject {
+    width: 98vw;
+    display: flex;
+    padding: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    background: rgba(255, 255, 255, 0.26);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dash-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: url('D:\program\vs-programs\Colabflow\collabflow\assets\bg.png');
+    height: 100vh;
+    /* justify-content: center;// */
+}
+
+.dashboard-sidebar {
+    background-color: #422a5d;
+    padding: 20px;
+    border-radius: 15px;
+    overflow-y: auto;
+}
+
+.user-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.user-dp {
+    width: 190px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.dashboard-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dashboard-sidebar input[type='file'] {
+    border: none;
+    background-color: transparent;
+    outline: none;
+}
+
+.user-details {
+    margin-bottom: 20px;
+}
+
+.user-name {
+    font-size: 55px;
+    font-weight: bold;
+    color: #422a5d;
+    margin-bottom: 8px;
+}
+
+.project-top {
+    text-align: center;
+}
+
+.user-name input {
+    font-size: 55px;
+    color: #422a5d;
+    text-align: center;
+    font-weight: bold;
+}
+
+.user-email input {
+    width: fit-content;
+    color: #422a5d;
+    margin: 0;
+    padding: 3px;
+
+}
+
+.user-email {
+    text-align: center;
+    font-size: 20px;
+    color: #422a5d;
+}
+
+.userrname {
+    width: fit-content;
+}
+
+.project-card {
+    background-color: #fff;
+    min-width: 160px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    width: 17%;
+    min-height: 200px;
+    padding: 10px;
+    border-radius: 15px;
+    margin: 5px 10px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pro-name {
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.pro {
+    font-size: 30px;
+    text-align: left;
+    width: 100%;
+    padding: 20px;
+    font-weight: 700;
+}
+
+.dashboard-content button {
+    padding: 5px 10px;
+    width: 100px;
+}
+
+.dashboard-content input {
+    border: none;
+    outline: none;
+}
+
+.project-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.project-bottom button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 2px;
+    border: none;
+    font-weight: 400;
+    color: #422a5d;
+}
+
+.project-bottom button:hover {
+    background: transparent;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+
+}
+
+@media only screen and (max-width: 600px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .dashboard-sidebar {
+        display: flex;
+        justify-content: center;
+    }
+}

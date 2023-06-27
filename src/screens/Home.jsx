@@ -12,6 +12,7 @@ import Discussion from '../components/Discussion';
 import Mentions from '../components/Mentions';
 import {AiFillWechat} from 'react-icons/ai';
 import ChatGPT from '../modals/Chatgpt';
+import Meet from './Meet';
 const Home = () => {
     const {id} = useParams();
     const [chatgpt,setchatgpt]=useState(false);
@@ -35,7 +36,7 @@ const Home = () => {
         }}>
         <HomeNavbar/>
         {
-            id==1 ? <Overview/>: id == 2 ?<Teams/> : id==3 ? <Task/> :id==4 ?<Timeline/> : <Discussion/>
+            id==1 ? <Overview/>: id == 2 ?<Teams/> : id==3 ? <Task/> :id==4 ?<Meet/> : <Discussion/>
         }
         </div>
         <div className="calender_part">
