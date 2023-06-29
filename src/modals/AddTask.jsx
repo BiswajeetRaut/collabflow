@@ -86,14 +86,12 @@ const AddTask = ({ showModal, setShowModal }) => {
             status: status,
             visibility: visible,
             members: members,
+        }).then(()=>{
+            alert('Task added successfully');
+            setShowModal(false);
+        }).catch((err)=>{
+            alert('Opps something wen wrong');
         })
-        // console.log('title:', taskTitle)
-        // console.log('start:', dates.startDate)
-        // console.log('end:', dates.endDate)
-        // console.log('selectedPerson:', selectedItems)
-        // console.log('access:', visible)
-        // // Perform form submission logic here
-        // console.log('Form submitted');
     };
 
     const openModal = () => {
@@ -199,6 +197,7 @@ const AddTask = ({ showModal, setShowModal }) => {
                                         value={dates}
                                         onChange={handleValueChange}
                                         showShortcuts={true}
+                                        popoverDirection='down'
                                     />
                                 </div>
                                 <div className="containers">
