@@ -15,11 +15,10 @@ const App = () => {
         <Route path="/task/:taskid" component={Task} />
         <Route path="/addProject" component={AddProject} />
         <Route path="/dashboard" component={Dashboard} />
-        <Route path="/room/:roomid" component={Room}/>
+        <Route path="/room/:roomid" component={Room} />
       </Switch>
     </BrowserRouter>
   );
 };
 
 export default App;
-

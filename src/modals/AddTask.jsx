@@ -16,6 +16,7 @@ const AddTask = ({ showModal, setShowModal }) => {
     user.photo = useSelector(selectUserPhoto)
     const [teams, setTeams] = useState([]);
     const [taskTitle, setTaskTitle] = useState('');
+    const [taskDesc, setTaskDesc] = useState('');
     const [startDate, setStartDate] = useState('');
     const [dates, setValue] = useState({
         startDate: null,
@@ -86,12 +87,16 @@ const AddTask = ({ showModal, setShowModal }) => {
             status: status,
             visibility: visible,
             members: members,
-        }).then(()=>{
+            description: taskDesc,
+            created_by: user.name
+        }).then(() => {
             alert('Task added successfully');
             setShowModal(false);
-        }).catch((err)=>{
-            alert('Opps something wen wrong');
+        }).catch((err) => {
+            alert('Opps something went wrong');
         })
+
+        closeModal()
     };
 
     const openModal = () => {
@@ -132,14 +137,6 @@ const AddTask = ({ showModal, setShowModal }) => {
     };
 
     const renderIndividualList = () => {
-        // const people = [
-        //     { name: 'John Doe', dp: 'https://randomuser.me/api/portraits/men/1.jpg' },
-        //     { name: 'Jane Smith', dp: 'https://randomuser.me/api/portraits/women/2.jpg' },
-        //     { name: 'David Johnson', dp: 'https://randomuser.me/api/portraits/men/3.jpg' },
-        //     { name: 'Emma Williams', dp: 'https://randomuser.me/api/portraits/women/4.jpg' },
-        //     // Add more people as needed
-        // ];
-
         return (
             <div className="item-list">
                 {people.map((person, index) => (
@@ -185,6 +182,16 @@ const AddTask = ({ showModal, setShowModal }) => {
                                         id="taskTitle"
                                         value={taskTitle}
                                         onChange={(e) => setTaskTitle(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="taskTitle">Task Description:</label>
+                                    <textarea
+                                        id="taskTitle"
+                                        value={taskDesc}
+                                        onChange={(e) => setTaskDesc(e.target.value)}
+                                        style={{ width: '100%', height: '100px' }}
                                         required
                                     />
                                 </div>

@@ -26,7 +26,7 @@ const HomeNavbar = () => {
           <div className="flex space-x-4">
             <a
               onClick={() => history.push('/home/1')}
-              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}
@@ -35,7 +35,7 @@ const HomeNavbar = () => {
             </a>
             <a
               onClick={() => history.push('/home/2')}
-              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}
@@ -44,7 +44,7 @@ const HomeNavbar = () => {
             </a>
             <a
                onClick={() => history.push('/home/3')}
-              className="text-FFFAE5 hover:text-white  hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+              className="text-FFFAE5 hover:text-white  hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}
@@ -53,7 +53,7 @@ const HomeNavbar = () => {
             </a>
             <a
                onClick={() => history.push('/home/4')}
-              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}
@@ -62,7 +62,7 @@ const HomeNavbar = () => {
             </a>
             <a
                onClick={() => history.push('/home/5')}
-              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+              className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
               style={{
                 boxShadow: `0 0 11px #b3b3b3ba`,
               }}

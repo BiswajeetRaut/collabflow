@@ -3,60 +3,58 @@ import './Meet.css'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import db from '../firebase';
 import firebase from 'firebase';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectProjectId } from '../features/project/projectSlice';
 import { selectUserId, selectUserName, selectUserPhoto } from '../features/user/userSlice';
 import { useHistory } from 'react-router-dom';
 const Meet = () => {
     const [showModal, setShowModal] = useState(false);
     const [mode, setMode] = useState('');
-    const [meetname,setmeetname] = useState('');
-    const [meetid,setmeetid]=useState('');
-    const [joinmeetid,setjoinmeetid]=useState('');
+    const [projectName, setprpojectName] = useState('');
+    const [meetname, setmeetname] = useState('');
+    const [meetid, setmeetid] = useState('');
+    const [joinmeetid, setjoinmeetid] = useState('');
     const projectId = useSelector(selectProjectId);
-    if(projectId=='' || projectId==null)
-    {
+    if (projectId == '' || projectId == null) {
         history.push('/home/1');
         alert('Please select a project');
     }
-    const user ={};
-    user.id= useSelector(selectUserId);
+    const user = {};
+    user.id = useSelector(selectUserId);
     user.name = useSelector(selectUserName);
     user.photo = useSelector(selectUserPhoto);
     const history = useHistory();
-    const createMeet =()=>{
+    const createMeet = () => {
         db.collection('Projects').doc(projectId).collection('Meets').add({
-            createdBy:user,
+            createdBy: user,
             name: meetname,
             startTime: firebase.firestore.FieldValue.serverTimestamp(),
-        }).then((res)=>{
+        }).then((res) => {
             console.log(res.id);
             setmeetid(res.id);
-        }).catch(()=>{
+        }).catch(() => {
             alert('Could not create you meet');
         })
     }
-    const joinMeet = ()=>{
-        db.collection('Projects').doc(projectId).collection('Meets').doc(joinmeetid).get().then((res)=>{
-            if(res.exists)
-            {
-                if(res.data()?.endTime !=undefined && res.data()?.endTime !=null)
-                {
+    const joinMeet = () => {
+        db.collection('Projects').doc(projectId).collection('Meets').doc(joinmeetid).get().then((res) => {
+            if (res.exists) {
+                if (res.data()?.endTime != undefined && res.data()?.endTime != null) {
                     alert('This meet has already been ended');
                     return;
                 }
-                history.push('/room'+'/'+joinmeetid);
+                history.push('/room' + '/' + joinmeetid);
             }
-            else{
+            else {
                 alert('Please Enter a proper meet');
             }
         })
     }
-    const [meet,setmeet]=useState([]);
-    useEffect(()=>{
-        db.collection('Projects').doc(projectId).collection('Meets').orderBy('startTime','desc').onSnapshot(snapshot=>{
+    const [meet, setmeet] = useState([]);
+    useEffect(() => {
+        db.collection('Projects').doc(projectId).collection('Meets').orderBy('startTime', 'desc').onSnapshot(snapshot => {
             var documents = [];
-            snapshot.docs.forEach(doc=>{
+            snapshot.docs.forEach(doc => {
                 var temp = doc.data();
                 temp.id = doc.id;
                 documents.push(temp);
@@ -64,12 +62,15 @@ const Meet = () => {
             setmeet(documents);
             console.log(documents);
         })
-    },[])
+        db.collection('Projects').doc(projectId).get().then((res) => {
+            setprpojectName(res.data().name)
+        })
+    }, [])
     return (
         <div className="cont">
             <div className="navbar">
                 <div className="head">
-                    <span>Project Name</span>
+                    <span>{projectName}</span>
                 </div>
                 <div className="butt">
                     <button className='button' onClick={() => { setShowModal(true); setMode('Create') }}>
@@ -91,11 +92,11 @@ const Meet = () => {
                                 <div className="txt">
                                     <div className='meet-text'>
                                         <span className="meet-name">{m.name}</span>
-                                        <span className='flex gap-2'>created By-<img src={m.createdBy.photo} alt="" className='w-6 h-6 rounded-full'/> {m.createdBy.name}</span>
+                                        <span className='flex gap-2'>created By-<img src={m.createdBy.photo} alt="" className='w-6 h-6 rounded-full' /> {m.createdBy.name}</span>
                                     </div>
                                     <div className="meet-dates">
                                         <span>started at-{new Date(m.startTime?.toDate().toUTCString()).toLocaleString()}</span>
-                                        <span>{m.endTime==undefined ? 'meet id is:' + m.id : 'ended at- '+ new Date(m?.endTime?.toDate().toUTCString()).toLocaleString()}</span>
+                                        <span>{m.endTime == undefined ? 'meet id is:' + m.id : 'ended at- ' + new Date(m?.endTime?.toDate().toUTCString()).toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -122,7 +123,7 @@ const Meet = () => {
                                     ?
                                     <>
 
-                                        <input type="text" placeholder='Enter Meet Name...' value={meetname} onChange={(e)=>{
+                                        <input type="text" placeholder='Enter Meet Name...' value={meetname} onChange={(e) => {
                                             setmeetname(e.target.value);
                                         }} required />
 
@@ -130,18 +131,18 @@ const Meet = () => {
                                     </>
                                     :
                                     <>
-                                        <input type="text" placeholder='Enter Meet id' value={joinmeetid} onChange={(e)=>{
+                                        <input type="text" placeholder='Enter Meet id' value={joinmeetid} onChange={(e) => {
                                             setjoinmeetid(e.target.value);
                                         }} required />
                                     </>
                             }
                             <div className="but">
-                                <button className='button' onClick={()=>{
-                                    mode=='Create' ? createMeet() : joinMeet();
+                                <button className='button' onClick={() => {
+                                    mode == 'Create' ? createMeet() : joinMeet();
                                 }}>
                                     {mode}
                                 </button>
-                                <button className='button' onClick={()=>{
+                                <button className='button' onClick={() => {
                                     setShowModal(false);
                                 }}>
                                     Cancel

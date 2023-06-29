@@ -85,7 +85,7 @@ export default function LeftSidebar() {
           <Sidebar.Item
             icon={HiChartPie}
           >
-            <a onClick={()=>history.push('/dashboard')}>
+            <a onClick={()=>history.push('/dashboard')}  className='cursor-pointer'>
               Dashboard
             </a>
           </Sidebar.Item>
@@ -101,7 +101,8 @@ export default function LeftSidebar() {
                 dispatch(setProject({
                   id: project.id,
                 }))
-              }}>  
+              }}
+              className='cursor-pointer'>  
               {project.name}
             </Sidebar.Item>
                 )
@@ -109,7 +110,7 @@ export default function LeftSidebar() {
             }
           <Sidebar.Item
           >
-            <a style={{display:`flex`,gap:`5px`,alignItems:`center`,justifyContent:`center`}}  onClick={() => history.push('/addProject')}>
+            <a style={{display:`flex`,gap:`5px`,alignItems:`center`,justifyContent:`center`}}  onClick={() => history.push('/addProject')}  className='cursor-pointer'>
              New Project
              <FaPlus></FaPlus>
             </a >
@@ -123,7 +124,7 @@ export default function LeftSidebar() {
               history.push('/');
             }}
           >
-            <p>
+            <p  className='cursor-pointer'>
               Log Out
             </p>
           </Sidebar.Item>

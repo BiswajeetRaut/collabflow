@@ -25,7 +25,7 @@ const RightSidebar = () => {
           <div className="flex items-center justify-center md:justify-start">
             <div className="flex space-x-4">
               <a
-                className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+                className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
                 onClick={() => {
                   setrightoption(true);
                 }}
@@ -36,7 +36,7 @@ const RightSidebar = () => {
                 Calender
               </a>
               <a
-                className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg"
+                className="text-FFFAE5 hover:text-white hover:bg-black transition duration-300 ease-in-out bg-white bg-opacity-40 px-4 py-2 rounded-lg cursor-pointer"
                 onClick={() => {
                   setrightoption(false);
                 }}

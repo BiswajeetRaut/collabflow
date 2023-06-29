@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
+import { selectProjectId } from '../features/project/projectSlice';
+import { useSelector } from 'react-redux';
+import db from '../firebase';
+import { useEffect } from 'react';
 
-const AddTaskMember = ({ member,setmember }) => {
+const AddTaskMember = ({ member, setmember, selectedMember, setSelectedMember,handleAddMember }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const projectId = useSelector(selectProjectId);
   const [members, setMembers] = useState([
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    { id: 3, name: 'Robert Johnson' },
-    { id: 4, name: 'Emily Davis' },
   ]);
-  const [selectedMember, setSelectedMember] = useState(null);
-
+  const getData = () => {
+    db.collection('Projects').doc(projectId).get().then((res) => {
+      const task = res.data();
+      setMembers(task.members)
+    })
+  }
+  useEffect(() => {
+    getData()
+  }, [])
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
   const handleMemberSelection = (member) => {
     setSelectedMember(member);
   };
-  const handleAddMember = () => {
-    // Perform add member logic here
-    console.log('Member:', selectedMember);
-    //db calling part here 
-
-    setmember(!member);
-  };
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -49,7 +51,7 @@ const AddTaskMember = ({ member,setmember }) => {
                     onChange={() => handleMemberSelection(member)}
                     className="text-indigo-500 focus:ring-indigo-500 h-4 w-4"
                   />
-                  <img class="w-8 h-8 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/helene-engels.png" alt="Helene Avatar"/>
+                  <img class="w-8 h-8 rounded-full" src={member.photo} alt="Helene Avatar" />
                   <span className="text-gray-900">{member.name}</span>
                 </label>
               ))}
@@ -62,7 +64,7 @@ const AddTaskMember = ({ member,setmember }) => {
               Add Member
             </button>
             <button
-              onClick={()=>{
+              onClick={() => {
                 setmember(!member);
               }}
               className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"

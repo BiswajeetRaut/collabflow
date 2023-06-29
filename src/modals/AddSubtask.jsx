@@ -1,31 +1,37 @@
 import React, { useState } from 'react';
-import Datepicker from "react-tailwindcss-datepicker"; 
-const AddSubtask = ({ setsubtaskshow,setSubtasks, subtasks }) => {
+import firebase from 'firebase';
+import { useSelector } from 'react-redux';
+import { selectProjectId } from '../features/project/projectSlice';
+import db from '../firebase';
+import Datepicker from "react-tailwindcss-datepicker";
+const AddSubtask = ({ setsubtaskshow, getSubtask, taskid }) => {
+  const projectId = useSelector(selectProjectId);
   const [teamName, setTeamName] = useState('');
-  const [description, setdescription]=useState('');
-const [value, setValue] = useState({ 
+  const [description, setdescription] = useState('');
+  const [value, setValue] = useState({
     startDate: null,
-    endDate: null 
-    });
+    endDate: null
+  });
   const handleTeamNameChange = (e) => {
     setTeamName(e.target.value);
   };
   const handleValueChange = (newValue) => {
-    console.log("newValue:", newValue); 
-    setValue(newValue); 
-    }
+    setValue(newValue);
+  }
   const handleAddTeam = () => {
-    console.log('Subtask Name', teamName);
+    const startdate = new Date(value.startDate)
+    const enddate = new Date(value.endDate)
     var subtask = {
-        subtaskTitle:teamName,
-        description:description,
-        deadline:value,
+      subtaskTitle: teamName,
+      description: description,
+      startDate: firebase.firestore.Timestamp.fromDate(startdate),
+      endDate: firebase.firestore.Timestamp.fromDate(enddate)
     }
-    setSubtasks([...subtasks,subtask]);
-    setsubtaskshow(false);
+    db.collection('Projects').doc(projectId).collection('Tasks').doc(taskid).collection('SubTasks').add(subtask)
+    setsubtaskshow(false)
+    getSubtask()
   };
-  const handleDescriptionChange =(e)=>
-  {
+  const handleDescriptionChange = (e) => {
     setdescription(e.target.value);
   }
   return (
@@ -51,11 +57,11 @@ const [value, setValue] = useState({
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <Datepicker 
-            value={value} 
-            onChange={handleValueChange} 
-            showShortcuts={true} 
-            />
+          <Datepicker
+            value={value}
+            onChange={handleValueChange}
+            showShortcuts={true}
+          />
           <div className="flex justify-end mt-5">
             <button
               onClick={handleAddTeam}
@@ -64,7 +70,7 @@ const [value, setValue] = useState({
               Add Sub Task
             </button>
             <button
-              onClick={()=>{
+              onClick={() => {
                 setsubtaskshow(false);
               }}
               className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"

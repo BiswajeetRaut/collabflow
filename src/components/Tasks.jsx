@@ -6,7 +6,9 @@ import { useSelector } from 'react-redux'
 import { selectProjectId } from '../features/project/projectSlice';
 import { selectUserId } from '../features/user/userSlice';
 import { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 const Tasks = () => {
+  const history = useHistory()
   const projectId = useSelector(selectProjectId)
   const [showModal, setShowModal] = useState(false);
   const [tasks, setTasks] = useState([]);
@@ -173,11 +175,11 @@ const Tasks = () => {
         </div>
         <div className="container mx-auto px-4 py-8">
           <div className="bg-white bg-opacity-40 rounded-lg p-4 max-w-screen-lg mx-auto overflow-y-auto max-h-96">
-            <div className="flex flex-wrap -mx-2">
+            <div className="flex flex-wrap -mx-2 ">
               {taskoption == options[0] ? type == 'Global' ? todo.map((task, index) => {
                 if (task.visibility == "general") {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
                         <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
@@ -189,10 +191,10 @@ const Tasks = () => {
               ) : todo.map((task, index) => {
                 if (task.visibility == 'personal') {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
@@ -201,10 +203,10 @@ const Tasks = () => {
               ) : taskoption == options[1] ? type == 'Global' ? inprogress.map((task, index) => {
                 if (task.visibility == "general") {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
@@ -213,10 +215,10 @@ const Tasks = () => {
               ) : inprogress.map((task, index) => {
                 if (task.visibility == 'personal') {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
@@ -225,10 +227,10 @@ const Tasks = () => {
               ) : type == 'Global' ? complete.map((task, index) => {
                 if (task.visibility == "general") {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
@@ -237,10 +239,10 @@ const Tasks = () => {
               ) : complete.map((task, index) => {
                 if (task.visibility == 'personal') {
                   return (
-                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
+                    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 cursor-pointer" key={index} onClick={() => history.push(`/task/${task.id}`)}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )

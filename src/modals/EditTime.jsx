@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
+import firebase from 'firebase';
+import { useSelector } from 'react-redux';
 import Datepicker from "react-tailwindcss-datepicker";
-const EditTime = ({ settime }) => {
+import { selectProjectId } from '../features/project/projectSlice';
+import db from '../firebase';
+const EditTime = ({ settime, taskid ,dates}) => {
+  const projectId = useSelector(selectProjectId);
+  const [value, setValue] = useState({
+    startDate: dates.startDate,
+    endDate: dates.endDate
+  });
 
-  const [value, setValue] = useState({ 
-    startDate: null,
-    endDate: null 
-    }); 
-    
-    const handleValueChange = (newValue) => {
-    console.log("newValue:", newValue); 
-    setValue(newValue); 
-    } 
-    
+  const handleValueChange = (newValue) => {
+    setValue(newValue);
+    console.log("newValue:", value);
+  }
+
   const handleSubmit = () => {
     // Perform submit logic here
-    console.log('New Project Date:', value);
+    const startdate = new Date(value.startDate)
+    const enddate = new Date(value.endDate)
     //db part 
+    db.collection('Projects').doc(projectId).collection('Tasks').doc(taskid).update({
+      startDate: firebase.firestore.Timestamp.fromDate(startdate),
+      endDate: firebase.firestore.Timestamp.fromDate(enddate),
+    })
     settime(false);
   };
 
@@ -24,11 +33,11 @@ const EditTime = ({ settime }) => {
       <div className="bg-white w-full max-w-md mx-auto rounded-lg shadow-lg">
         <div className="px-4 py-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Change Project Date</h2>
-          <Datepicker 
-value={value} 
-onChange={handleValueChange} 
-showShortcuts={true} 
-/>
+          <Datepicker
+            value={value}
+            onChange={handleValueChange}
+            showShortcuts={true}
+          />
           <div className="flex justify-end mt-3">
             <button
               onClick={handleSubmit}
@@ -37,7 +46,7 @@ showShortcuts={true}
               Save
             </button>
             <button
-              onClick={()=>{
+              onClick={() => {
                 settime(false)
               }}
               className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
