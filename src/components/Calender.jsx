@@ -10,12 +10,19 @@ import { selectProjectId } from '../features/project/projectSlice';
 import db from '../firebase';
 import { selectUserId, selectUserPhoto } from '../features/user/userSlice';
 import { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 const Calendar = () => {
+    const history = useHistory();
     const [events, setEvents] = useState([]);
     const projectId = useSelector(selectProjectId);
     const userId = useSelector(selectUserId);
     console.log(projectId)
     const userPhoto = useSelector(selectUserPhoto);
+    const handleEventClick = (e)=>{
+        console.log(e.event.id);
+        var redirect = '/task'+'/'+e.event.id;
+        history.push(redirect);
+    }
     useEffect(() => {
         db.collection('Projects').doc(projectId?projectId:'123').collection('Tasks').onSnapshot(snapshot => {
             var documents = [];
@@ -120,6 +127,7 @@ const Calendar = () => {
                     initialView="dayGridMonth"
                     events={events}
                     eventContent={eventContent}
+                    eventClick={handleEventClick}
                     headerToolbar={{
                         start: "prev,next",
                         center: "title",

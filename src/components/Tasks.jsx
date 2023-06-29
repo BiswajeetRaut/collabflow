@@ -180,7 +180,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
@@ -192,7 +192,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
                       </div>
                     </div>
                   )
@@ -204,7 +204,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
                       </div>
                     </div>
                   )
@@ -216,7 +216,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
                       </div>
                     </div>
                   )
@@ -228,7 +228,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: {new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString() }</p>
                       </div>
                     </div>
                   )
@@ -240,7 +240,7 @@ const Tasks = () => {
                     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2" key={index}>
                       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h2>
-                        <p className="text-gray-700">Deadline: { }</p>
+                        <p className="text-gray-700">Deadline: { new Date(task?.endDate?.toDate().toDateString()).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )
