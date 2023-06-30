@@ -36,6 +36,59 @@ CollabFlow is a powerful and intuitive collaborative project management tool des
 🔔 **Mention Notifications**
 - Receive notifications when mentioned in chat discussions, ensuring prompt engagement.
 
+
+## How to Use CollabFlow as a User
+
+1. **Login with Google Account**
+   - Visit the CollabFlow login page and sign in using your Google account credentials.
+
+2. **Create a Project**
+   - If you don't have any existing projects, create a new project by clicking on the "Create Project" button.
+   - Provide a project name and details.
+
+3. **Add Admins**
+   - As a project creator, you can add administrators to the project.
+   - Administrators have additional privileges to manage project settings and team members.
+
+4. **Create Teams**
+   - Once the project is created, administrators can create teams within the project.
+   - Teams allow for better organization and collaboration.
+   - Add team members to each team.
+
+5. **Create Tasks**
+   - Start creating tasks for the project.
+   - Choose whether the task should be assigned to a specific team or individual.
+   - Provide task details, deadlines, and any other relevant information.
+
+6. **Overview and Calendar**
+   - In the project's overview section, view and manage tasks categorized as "Todo," "In Progress," and "Completed."
+   - The integrated calendar provides an overview of tasks for efficient scheduling and planning.
+
+7. **Discussion Forum**
+   - Engage in discussions with project members through the dedicated discussion forum.
+   - Collaborate, share updates, and brainstorm ideas.
+
+8. **Task Details**
+   - Access individual task pages to modify tasks, add comments, or create subtasks.
+   - Keep tasks updated with relevant information and progress.
+
+9. **Mentions Corner**
+   - Keep track of who has mentioned you in the chats through the mentions corner.
+   - Stay informed about important conversations and actions related to your involvement.
+
+10. **Join Video Meets**
+    - CollabFlow provides a video conferencing feature called "Meets."
+    - Create a meet, obtain a unique meet ID, and share it with project members.
+    - Join video meetings and collaborate in real-time.
+
+11. **Admin Privileges**
+    - Note that only administrators have the power to create teams and add members to a project.
+    - Assign administrative roles to the right individuals for efficient project management.
+
+12. **End Meets**
+    - Only the person who initiated the meet can end it.
+    - Ensure proper coordination and communication to manage meet sessions effectively.
+
 ## Installation and Setup
 
 1. Clone the CollabFlow repository.
