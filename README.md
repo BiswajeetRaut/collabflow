@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# CollabFlow - Collaborative Project Management Tool
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+CollabFlow is a powerful and intuitive collaborative project management tool designed to streamline team collaboration and enhance productivity. With CollabFlow, you can create projects, add administrators, form teams, and invite members to collaborate on tasks.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+🌟 **Project Creation and Administration**
+- Create projects and add administrators to manage project settings and team members.
 
-### `npm start`
+👥 **Team Management**
+- Create teams within a project and invite individuals to join specific teams.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+✅ **Task Management**
+- Add personalized or global tasks to projects.
+- Categorize tasks as "Todo," "In Progress," or "Completed" for easy tracking.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+💬 **Discussion Forum**
+- Engage in project-specific discussion forums for seamless communication and collaboration.
 
-### `npm test`
+📄 **Task Details**
+- Access individual task pages with subtasks, assigned team members, and comments.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+📅 **Calendar Integration**
+- View and manage tasks on a two-month calendar display.
+- Weekly task view provides a detailed overview of scheduled tasks.
 
-### `npm run build`
+🔑 **Google Account Integration**
+- Log in to CollabFlow using your Google account for secure and convenient access.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+📹 **Video Conferencing**
+- Join video conferences using CollabFlow's Meet functionality for real-time collaboration.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+🖥️ **Screen Sharing**
+- Empower collaboration with screen sharing capabilities powered by Zegocloud.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+🔔 **Mention Notifications**
+- Receive notifications when mentioned in chat discussions, ensuring prompt engagement.
 
-### `npm run eject`
+## Installation and Setup
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clone the CollabFlow repository.
+2. Install the necessary dependencies using `npm install` or `yarn install`.
+3. Configure the project settings, including database connection and authentication methods.
+4. Run the application using `npm start` or `yarn start`.
+5. Access CollabFlow in your web browser at `http://localhost:3000`.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Contributing
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+We welcome contributions from the CollabFlow community! To contribute, follow these steps:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Fork the repository and create a new branch for your feature or bug fix.
+2. Implement your changes, adhering to the project's coding style and guidelines.
+3. Write clear and concise commit messages explaining the purpose of each commit.
+4. Submit a pull request, providing a detailed description of your changes and their benefits.
 
-## Learn More
+## License
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+CollabFlow is licensed under the [MIT License](LICENSE.md).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Feel free to customize the README file to match your project's branding and provide more specific installation and setup instructions. Happy collaborating with CollabFlow!
