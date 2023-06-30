@@ -17,6 +17,9 @@ CollabFlow is a powerful and intuitive collaborative project management tool des
 💬 **Discussion Forum**
 - Engage in project-specific discussion forums for seamless communication and collaboration.
 
+💬 **ChatBot**
+- ChatGPT integrated chatbot for all your queries while doing and scheduling tasks.
+
 📄 **Task Details**
 - Access individual task pages with subtasks, assigned team members, and comments.
 
