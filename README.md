@@ -36,7 +36,6 @@ CollabFlow is a powerful and intuitive collaborative project management tool des
 🔔 **Mention Notifications**
 - Receive notifications when mentioned in chat discussions, ensuring prompt engagement.
 
-
 ## How to Use CollabFlow as a User
 
 1. **Login with Google Account**
