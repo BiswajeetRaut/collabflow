@@ -1,6 +1,6 @@
 import firebase from "firebase";
 const firebaseConfig = {
-    apiKey: "AIzaSyCscnfbhj8p27eD6BhHwZo8MseEI31Tm9U",
+    apiKey: {FIREBASE_API_KEY},
   authDomain: "collabflow-82014.firebaseapp.com",
   projectId: "collabflow-82014",
   storageBucket: "collabflow-82014.appspot.com",
