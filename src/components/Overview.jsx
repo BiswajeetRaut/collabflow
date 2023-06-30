@@ -220,7 +220,7 @@ const Overview = () => {
               <div className='w-full overflow-y-auto px-4 py-4 flex flex-wrap bg-white bg-opacity-40 mt-5 rounded-md shadow-md'>
                 {
                   incompletetask.map((task, index) => {
-                    return (<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2" key={index} onClick={() => {
+                    return (<div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-2 mt-2 hover:scale-105 transition-all ease-in-out cursor-pointer" key={index} onClick={() => {
                       var taskredirect = '/task' + '/' + task.id;
                       history.push(taskredirect);
                     }}>

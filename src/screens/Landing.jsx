@@ -2,10 +2,13 @@ import React, { useEffect } from 'react';
 import './Landing.css';
 import landing from '../assets/landing.png'
 import {FaGoogle} from 'react-icons/fa';
+import firebase from 'firebase';
+import {storage} from '../firebase';
 import { selectUserName,
   selectUserPhoto,
   setUserLoginDetails,
-  setSignOutState } from '../features/user/userSlice.js';
+  setSignOutState, 
+  selectUserId} from '../features/user/userSlice.js';
 import {useDispatch,useSelector} from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import db from '../firebase';
@@ -23,6 +26,14 @@ const Landing = () => {
   //     }
   //   })
   // },[userName]);
+  const userid = useSelector(selectUserId);
+  useEffect(()=>{
+    if(userid!=''&&userid!=null&&userid!=undefined)
+    {
+      console.log('userid == '+ userid);
+      history.push('home/1');
+    }
+  })
   const handle= ()=>{
     console.log(userName);
     auth.signInWithPopup(provider).then((result)=>{
@@ -41,10 +52,10 @@ const Landing = () => {
         id=res.docs[0].id;
         dispatch(
           setUserLoginDetails({
-            name: user.displayName,
-            id: id,
-            photo: user.photoURL,
-            email:user.email,
+            name: res.docs[0].data().name,
+            id: res.docs[0].id,
+            photo: res.docs[0].data().photo,
+            email:res.docs[0].data().email,
           }
           )
         )
