@@ -113,5 +113,3 @@ We welcome contributions from the CollabFlow community! To contribute, follow th
 CollabFlow is licensed under the [MIT License](LICENSE.md).
 
 ---
-
-Feel free to customize the README file to match your project's branding and provide more specific installation and setup instructions. Happy collaborating with CollabFlow!
