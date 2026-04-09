@@ -91,6 +91,31 @@ CollabFlow is a powerful and intuitive collaborative project management tool des
     - Only the person who initiated the meet can end it.
     - Ensure proper coordination and communication to manage meet sessions effectively.
 
+
+## Agentic Chatbot Tools (Built-in)
+
+The chatbot supports two execution modes:
+
+1. **Hosted LLM mode (recommended)** via `REACT_APP_AGENT_API_URL` where an LLM can decide tool usage from free-form user text.
+2. **Local fallback mode** (deterministic parser) if hosted API is unavailable.
+
+Built-in tools:
+
+- `list_tasks`
+- `task_summary`
+- `create_task`
+- `update_task_status`
+- `add_subtask`
+- `assign_task_member`
+- `post_discussion_message`
+- `list_project_members`
+
+Open chat and use `/help` for live command guidance.
+
+For production LLM orchestration with Google ADK and multi-agent segregation, see:
+- `docs/google-adk-agent-api.md`
+- `agent-api/README.md`
+
 ## Installation and Setup
 
 1. Clone the CollabFlow repository.
