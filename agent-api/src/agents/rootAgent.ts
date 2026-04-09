@@ -9,9 +9,17 @@ import {
   type ToolContext
 } from '../tools/firestoreTools.js';
 
+type ChatHistoryItem = {
+  role: string;
+  text: string;
+};
+
 type AgentInput = ToolContext & {
   message: string;
+  history?: ChatHistoryItem[];
 };
+
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 const routerPrompt = `
 You are the supervisor for CollabFlow.
@@ -40,10 +48,21 @@ const formatTool = (name: string, description: string, fn: (input: any) => Promi
   execute: fn
 });
 
+const buildContextAwareMessage = (message: string, history?: ChatHistoryItem[]) => {
+  const prior = (history || [])
+    .slice(-8)
+    .map((item, idx) => `${idx + 1}. ${item.role}: ${item.text}`)
+    .join('\n');
+
+  if (!prior) return message;
+
+  return `Conversation history:\n${prior}\n\nLatest user message:\n${message}`;
+};
+
 const createWorkerAgents = (context: ToolContext) => {
   const taskOpsAgent = new LlmAgent({
     name: 'task_ops_agent',
-    model: 'gemini-2.5-flash',
+    model: GEMINI_MODEL,
     instruction: taskOpsPrompt,
     tools: [
       formatTool('list_tasks', 'List visible tasks for the current user.', async () =>
@@ -68,7 +87,7 @@ const createWorkerAgents = (context: ToolContext) => {
 
   const collaborationAgent = new LlmAgent({
     name: 'collaboration_agent',
-    model: 'gemini-2.5-flash',
+    model: GEMINI_MODEL,
     instruction: collaborationPrompt,
     tools: [
       formatTool('list_project_members', 'List project members.', async () =>
@@ -101,24 +120,26 @@ export const createRootAgent = (context: ToolContext) => {
 
   const routerAgent = new LlmAgent({
     name: 'router_agent',
-    model: 'gemini-2.5-flash',
+    model: GEMINI_MODEL,
     instruction: routerPrompt
   });
 
   return {
     async run(input: AgentInput) {
-      const route = await routerAgent.run(input.message);
+      const routedMessage = buildContextAwareMessage(input.message, input.history);
+
+      const route = await routerAgent.run(routedMessage);
       const routeText = String(route?.text || route || '').toLowerCase();
 
       if (routeText.includes('task_ops_agent')) {
-        return taskOpsAgent.run(input.message);
+        return taskOpsAgent.run(routedMessage);
       }
 
       if (routeText.includes('collaboration_agent')) {
-        return collaborationAgent.run(input.message);
+        return collaborationAgent.run(routedMessage);
       }
 
-      return routerAgent.run(input.message);
+      return routerAgent.run(routedMessage);
     }
   };
 };
