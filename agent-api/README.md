@@ -1,11 +1,11 @@
-# CollabFlow Agent API (Google ADK)
+# CollabFlow Agent API (LangGraph + Gemini)
 
-This service adds an **LLM decision layer** for the chatbot using **Google ADK** and Gemini models:
+This service adds an **LLM agent layer** for the chatbot using **LangGraph** with **Gemini**.
 
-- `router_agent` decides whether task operations, collaboration operations, or a direct chat reply is needed.
-- `task_ops_agent` handles task tools.
-- `collaboration_agent` handles members/discussions.
-- The API accepts optional conversation `history` for context-sensitive routing/replies.
+- Uses a ReAct-style LangGraph agent to interpret natural language requests.
+- Handles complex and multi-step prompts by chaining tool calls.
+- Accepts optional conversation `history` for context-aware reasoning.
+- Supports task + collaboration tools in one unified agent.
 
 ## Endpoints
 
@@ -20,7 +20,7 @@ This service adds an **LLM decision layer** for the chatbot using **Google ADK**
   "userId": "...",
   "userName": "...",
   "userPhoto": "...",
-  "message": "Create task to finish QA by Friday",
+  "message": "Create a task for QA, assign it to Priya, and post an update in discussions",
   "history": [{ "role": "user", "text": "previous turn" }]
 }
 ```
@@ -41,11 +41,21 @@ Then set in frontend `.env`:
 REACT_APP_AGENT_API_URL=http://localhost:8080
 ```
 
+## Tool coverage
+
+- `list_tasks`
+- `task_summary`
+- `create_task`
+- `update_task_status`
+- `add_subtask`
+- `list_project_members`
+- `assign_task_member`
+- `post_discussion_message`
+
 ## Firestore expectations
 
 - `Projects/{projectId}` has `members[]`
 - `Projects/{projectId}/Tasks/{taskId}` task documents
-- `Projects/{projectId}/Tasks/{taskId}/SubTasks/{subTaskId}` subtasks
 - `Projects/{projectId}/Discussions/{messageId}` discussion items
 
 ## Production hardening checklist
