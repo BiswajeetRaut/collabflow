@@ -5,6 +5,7 @@ Yes — this is absolutely possible with Google ADK.
 This service uses **Google ADK** + **Gemini** to run an agentic chatbot that can understand natural language (including complex, multi-step requests) and invoke project tools in sequence.
 
 - Single ADK agent with a shared tool registry.
+- Optional LangGraph agent path for advanced ReAct-style orchestration.
 - Handles task + collaboration flows in one conversation.
 - Accepts optional conversation `history` for context-aware responses.
 
@@ -21,10 +22,15 @@ This service uses **Google ADK** + **Gemini** to run an agentic chatbot that can
   "userId": "...",
   "userName": "...",
   "userPhoto": "...",
+  "agentMode": "adk",
   "message": "Create a QA task due tomorrow, assign Priya, then post an update in discussion",
   "history": [{ "role": "user", "text": "previous turn" }]
 }
 ```
+
+`agentMode` options:
+- `adk` (default): Google ADK Gemini agent
+- `langgraph`: LangGraph ReAct-style Gemini agent
 
 ## Local run
 

@@ -175,6 +175,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [agentMode, setAgentMode] = useState('adk');
   const agentApiUrl = process.env.REACT_APP_AGENT_API_URL;
 
   const toolSummary = useMemo(
@@ -375,7 +376,8 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
           ...messages.map((entry) => ({ role: 'user', text: entry.text })),
           ...responses.map((entry) => ({ role: 'assistant', text: entry.text }))
         ],
-        availableTools: HOSTED_AGENT_TOOLS
+        availableTools: HOSTED_AGENT_TOOLS,
+        agentMode
       })
     });
 
@@ -447,7 +449,20 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
           </div>
 
           <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 mb-3">
-            <p className="font-semibold mb-1">Tools loaded</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-semibold">Tools loaded</p>
+              <div className="flex items-center gap-2">
+                <label className="text-[11px] font-semibold text-gray-500">Engine</label>
+                <select
+                  value={agentMode}
+                  onChange={(e) => setAgentMode(e.target.value)}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-white text-[11px] font-medium"
+                >
+                  <option value="adk">Gemini ADK</option>
+                  <option value="langgraph">Gemini LangGraph</option>
+                </select>
+              </div>
+            </div>
             <ul className="list-disc pl-4 space-y-1">
               {HOSTED_AGENT_TOOLS.map((toolName) => (
                 <li key={toolName}>
@@ -456,7 +471,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
               ))}
             </ul>
             <p className="mt-2">
-              Mode: {agentApiUrl ? 'Hosted API + local fallback' : 'Local tools only'}
+              Mode: {agentApiUrl ? `Hosted API (${agentMode}) + local fallback` : 'Local tools only'}
             </p>
           </div>
 
