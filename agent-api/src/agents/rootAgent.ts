@@ -1,10 +1,12 @@
 import { LlmAgent } from '@google/adk';
 import {
+  addSubtask,
   assignTaskMember,
   createTask,
   getProjectMembers,
   listTasks,
   postDiscussionMessage,
+  taskSummary,
   updateTaskStatus,
   type ToolContext
 } from '../tools/firestoreTools.js';
@@ -21,54 +23,37 @@ type AgentInput = ToolContext & {
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-const routerPrompt = `
-You are the supervisor for CollabFlow.
-Decide which worker agent should handle the user request:
-- task_ops_agent: create/update/list task and subtasks work
-- collaboration_agent: members and discussion operations
-If no tool is needed, answer directly.
-Always return short JSON with keys: {"target": "task_ops_agent|collaboration_agent|direct", "reason": "..."}
+const agentPrompt = `
+You are CollabFlow's agentic assistant using Gemini.
+You must understand natural language requests, including complex multi-step instructions.
+
+Behavior requirements:
+1) Prefer tool execution over assumptions whenever project data/actions are requested.
+2) When a user asks for multiple actions, execute them in sequence and summarize outcomes.
+3) Use taskIdOrTitle as either task id or task title.
+4) If required fields are missing, ask one concise follow-up question.
+5) Keep final replies concise, practical, and user-focused.
 `;
 
-const taskOpsPrompt = `
-You are task_ops_agent for CollabFlow.
-Use tools to execute task operations in Firestore.
-If required arguments are missing, ask a follow-up question with only missing fields.
-`;
-
-const collaborationPrompt = `
-You are collaboration_agent for CollabFlow.
-Use tools for project members and discussions.
-If required arguments are missing, ask a follow-up question with only missing fields.
-`;
-
-const formatTool = (name: string, description: string, fn: (input: any) => Promise<any>) => ({
+const formatTool = (name: string, description: string, execute: (args: any) => Promise<any>) => ({
   name,
   description,
-  execute: fn
+  execute
 });
 
-const buildContextAwareMessage = (message: string, history?: ChatHistoryItem[]) => {
-  const prior = (history || [])
-    .slice(-8)
-    .map((item, idx) => `${idx + 1}. ${item.role}: ${item.text}`)
-    .join('\n');
-
-  if (!prior) return message;
-
-  return `Conversation history:\n${prior}\n\nLatest user message:\n${message}`;
-};
-
-const createWorkerAgents = (context: ToolContext) => {
-  const taskOpsAgent = new LlmAgent({
-    name: 'task_ops_agent',
+const createAgent = (context: ToolContext) =>
+  new LlmAgent({
+    name: 'collabflow_agent',
     model: GEMINI_MODEL,
-    instruction: taskOpsPrompt,
+    instruction: agentPrompt,
     tools: [
-      formatTool('list_tasks', 'List visible tasks for the current user.', async () =>
+      formatTool('list_tasks', 'List tasks visible to the current user.', async () =>
         listTasks({ projectId: context.projectId, userId: context.userId })
       ),
-      formatTool('create_task', 'Create a task.', async (args) =>
+      formatTool('task_summary', 'Get summary counts and priority for current tasks.', async () =>
+        taskSummary({ projectId: context.projectId, userId: context.userId })
+      ),
+      formatTool('create_task', 'Create a task in the project.', async (args) =>
         createTask({
           projectId: context.projectId,
           userId: context.userId,
@@ -79,28 +64,31 @@ const createWorkerAgents = (context: ToolContext) => {
           visibility: args.visibility || 'general'
         })
       ),
-      formatTool('update_task_status', 'Update a task status.', async (args) =>
-        updateTaskStatus({ projectId: context.projectId, taskId: args.taskId, status: args.status })
-      )
-    ]
-  });
-
-  const collaborationAgent = new LlmAgent({
-    name: 'collaboration_agent',
-    model: GEMINI_MODEL,
-    instruction: collaborationPrompt,
-    tools: [
-      formatTool('list_project_members', 'List project members.', async () =>
+      formatTool('update_task_status', 'Update task status by task id or title.', async (args) =>
+        updateTaskStatus({
+          projectId: context.projectId,
+          taskIdOrTitle: args.taskIdOrTitle,
+          status: args.status
+        })
+      ),
+      formatTool('add_subtask', 'Add a subtask to task by task id or title.', async (args) =>
+        addSubtask({
+          projectId: context.projectId,
+          taskIdOrTitle: args.taskIdOrTitle,
+          subtaskTitle: args.subtaskTitle
+        })
+      ),
+      formatTool('list_project_members', 'List all project members.', async () =>
         getProjectMembers(context.projectId)
       ),
-      formatTool('assign_task_member', 'Assign member to task.', async (args) =>
+      formatTool('assign_task_member', 'Assign a member to task by task id/title.', async (args) =>
         assignTaskMember({
           projectId: context.projectId,
-          taskId: args.taskId,
+          taskIdOrTitle: args.taskIdOrTitle,
           memberIdOrName: args.memberIdOrName
         })
       ),
-      formatTool('post_discussion_message', 'Post a discussion message.', async (args) =>
+      formatTool('post_discussion_message', 'Post a message in project discussions.', async (args) =>
         postDiscussionMessage({
           projectId: context.projectId,
           userId: context.userId,
@@ -112,34 +100,25 @@ const createWorkerAgents = (context: ToolContext) => {
     ]
   });
 
-  return { taskOpsAgent, collaborationAgent };
+const buildContextAwareMessage = (message: string, history?: ChatHistoryItem[]) => {
+  if (!history?.length) return message;
+
+  const prior = history
+    .slice(-10)
+    .map((item, index) => `${index + 1}. ${item.role}: ${item.text}`)
+    .join('\n');
+
+  return `Conversation history:\n${prior}\n\nLatest user message:\n${message}`;
 };
 
 export const createRootAgent = (context: ToolContext) => {
-  const { taskOpsAgent, collaborationAgent } = createWorkerAgents(context);
-
-  const routerAgent = new LlmAgent({
-    name: 'router_agent',
-    model: GEMINI_MODEL,
-    instruction: routerPrompt
-  });
+  const agent = createAgent(context);
 
   return {
     async run(input: AgentInput) {
-      const routedMessage = buildContextAwareMessage(input.message, input.history);
-
-      const route = await routerAgent.run(routedMessage);
-      const routeText = String(route?.text || route || '').toLowerCase();
-
-      if (routeText.includes('task_ops_agent')) {
-        return taskOpsAgent.run(routedMessage);
-      }
-
-      if (routeText.includes('collaboration_agent')) {
-        return collaborationAgent.run(routedMessage);
-      }
-
-      return routerAgent.run(routedMessage);
+      const prompt = buildContextAwareMessage(input.message, input.history);
+      const result = await agent.run(prompt);
+      return { text: String(result?.text || result || 'No response from agent.') };
     }
   };
 };

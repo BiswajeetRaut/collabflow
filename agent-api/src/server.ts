@@ -54,8 +54,8 @@ app.post('/v1/agent/chat', async (req, res) => {
 
     res.json({
       reply: String(result?.text || result || 'No response from agent.'),
-      provider: 'google-adk',
-      mode: 'multi-agent-contextual'
+      provider: 'google-adk-gemini',
+      mode: 'agentic-tool-calling'
     });
   } catch (error: any) {
     res.status(400).json({
