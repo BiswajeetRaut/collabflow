@@ -101,7 +101,71 @@ const inferNaturalCreateTaskInput = (text) => {
 const formatTaskLine = (task) => {
   const dueDate = task.endDate?.toDate ? task.endDate.toDate() : task.endDate;
   const due = dueDate ? new Date(dueDate).toLocaleDateString() : 'N/A';
-  return `• ${task.title} (id: ${task.id}, status: ${task.status}, due: ${due})`;
+  return `• ${task.title} (status: ${task.status}, due: ${due}) → ${window.location.origin}/task/${task.id}`;
+};
+
+const linkifyText = (text) => {
+  const markdownRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  return text.split('\n').map((line, lineIndex) => {
+    const markdownParts = [];
+    let cursor = 0;
+    let markdownMatch;
+
+    while ((markdownMatch = markdownRegex.exec(line)) !== null) {
+      if (markdownMatch.index > cursor) {
+        markdownParts.push({ type: 'text', value: line.slice(cursor, markdownMatch.index) });
+      }
+      markdownParts.push({
+        type: 'link',
+        value: markdownMatch[1],
+        href: markdownMatch[2]
+      });
+      cursor = markdownRegex.lastIndex;
+    }
+
+    if (cursor < line.length) {
+      markdownParts.push({ type: 'text', value: line.slice(cursor) });
+    }
+
+    const resolvedParts = markdownParts.flatMap((part) => {
+      if (part.type === 'link') return [part];
+
+      const pieces = [];
+      let textCursor = 0;
+      let urlMatch;
+      while ((urlMatch = urlRegex.exec(part.value)) !== null) {
+        if (urlMatch.index > textCursor) {
+          pieces.push({ type: 'text', value: part.value.slice(textCursor, urlMatch.index) });
+        }
+        pieces.push({ type: 'link', value: 'Open', href: urlMatch[1] });
+        textCursor = urlRegex.lastIndex;
+      }
+      if (textCursor < part.value.length) {
+        pieces.push({ type: 'text', value: part.value.slice(textCursor) });
+      }
+      return pieces;
+    });
+
+    return (
+      <div key={`line-${lineIndex}`}>
+        {resolvedParts.map((part, index) =>
+          part.type === 'link' ? (
+            <a
+              key={`part-${lineIndex}-${index}`}
+              href={part.href}
+              className="text-indigo-600 underline font-medium hover:text-indigo-800"
+            >
+              {part.value}
+            </a>
+          ) : (
+            <span key={`part-${lineIndex}-${index}`}>{part.value}</span>
+          )
+        )}
+      </div>
+    );
+  });
 };
 
 const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses }) => {
@@ -187,7 +251,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
         ].join('\n');
       }
 
-      await db.collection('Projects').doc(projectId).collection('Tasks').add({
+      const createdRef = await db.collection('Projects').doc(projectId).collection('Tasks').add({
         title,
         description: description || `Task created by ${userName || 'user'} via assistant`,
         startDate: new Date(),
@@ -198,7 +262,14 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
         created_by: userName
       });
 
-      return `Done — I created \`${title}\` as a ${visibility} task due ${dueDate.toLocaleDateString()} and assigned it to you.`;
+      const taskUrl = `${window.location.origin}/task/${createdRef.id}`;
+      return [
+        `✅ Created: ${title}`,
+        `• Visibility: ${visibility}`,
+        `• Due: ${dueDate.toLocaleDateString()}`,
+        `• Assigned to: ${userName || 'you'}`,
+        `[Open task](${taskUrl})`
+      ].join('\n');
     }
 
     if (lowerText.startsWith('move task')) {
@@ -391,7 +462,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
 
           <div className="overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4" style={{ height: '66%' }}>
             <div key="assistant-welcome" className="text-left mb-2">
-              <p className="inline-block px-4 py-2 bg-gray-200 rounded-lg">{responses[0].text}</p>
+              <div className="inline-block px-4 py-2 bg-gray-200 rounded-lg">{linkifyText(responses[0].text)}</div>
             </div>
             {messages.map((message, index) => (
               <React.Fragment key={`message-${index}`}>
@@ -400,9 +471,9 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
                 </div>
                 {responses[index + 1] && (
                   <div key={`response-${index}`} className="text-left mb-2">
-                    <p className="inline-block px-4 py-2 bg-gray-200 rounded-lg whitespace-pre-wrap">
-                      {responses[index + 1].text}
-                    </p>
+                    <div className="inline-block px-4 py-2 bg-gray-200 rounded-lg whitespace-pre-wrap max-w-full">
+                      {linkifyText(responses[index + 1].text)}
+                    </div>
                   </div>
                 )}
               </React.Fragment>
