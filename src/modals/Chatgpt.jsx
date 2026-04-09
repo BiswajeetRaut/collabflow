@@ -58,6 +58,46 @@ const parseDateFromCommand = (value) => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
+const getDateDaysFromToday = (days) => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+const inferNaturalCreateTaskInput = (text) => {
+  const lower = text.toLowerCase();
+  const isCreateIntent =
+    lower.includes('create') &&
+    (lower.includes('task') || lower.includes('todo')) &&
+    (lower.includes('deadline') || lower.includes('due') || lower.includes('by'));
+
+  if (!isCreateIntent) return null;
+
+  const titleMatch =
+    text.match(/task name(?: as| is)?\s+["“]?(.+?)["”]?(?:\s+and|\s+with|\s+deadline|\s+due|$)/i) ||
+    text.match(/create (?:a )?task(?: called| named)?\s+["“]?(.+?)["”]?(?:\s+and|\s+with|\s+deadline|\s+due|$)/i);
+
+  const daysMatch = text.match(/(\d+)\s*(?:business\s*)?days?\s*(?:from\s+today|later|out)?/i);
+  const explicitDateMatch = text.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+
+  const title = titleMatch?.[1]?.trim();
+  const dueDate = explicitDateMatch?.[1]
+    ? parseDateFromCommand(explicitDateMatch[1])
+    : daysMatch
+      ? getDateDaysFromToday(Number(daysMatch[1]))
+      : null;
+
+  if (!title || !dueDate) return null;
+
+  return {
+    title,
+    description: `Created from chat request: ${text}`,
+    dueDate,
+    visibility: lower.includes('personal') ? 'personal' : 'general'
+  };
+};
+
 const formatTaskLine = (task) => {
   const dueDate = task.endDate?.toDate ? task.endDate.toDate() : task.endDate;
   const due = dueDate ? new Date(dueDate).toLocaleDateString() : 'N/A';
@@ -115,24 +155,41 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
       ].join('\n');
     }
 
-    if (lowerText.startsWith('create task:')) {
-      const payload = text.replace(/create task:/i, '').split('|').map((item) => item.trim());
-      const [title, description, dueDateRaw, visibilityRaw] = payload;
+    if (lowerText.startsWith('create task:') || lowerText.includes('create') || lowerText.includes('deadline')) {
+      let title;
+      let description;
+      let dueDate;
+      let visibility = 'general';
 
-      if (!title || !description || !dueDateRaw) {
-        return 'I need: `Create task: title | description | YYYY-MM-DD | general|personal`.';
+      if (lowerText.startsWith('create task:')) {
+        const payload = text.replace(/create task:/i, '').split('|').map((item) => item.trim());
+        const [titleRaw, descriptionRaw, dueDateRaw, visibilityRaw] = payload;
+        title = titleRaw;
+        description = descriptionRaw;
+        dueDate = parseDateFromCommand(dueDateRaw);
+        visibility = visibilityRaw === 'personal' ? 'personal' : 'general';
+      } else {
+        const inferred = inferNaturalCreateTaskInput(text);
+        if (inferred) {
+          title = inferred.title;
+          description = inferred.description;
+          dueDate = inferred.dueDate;
+          visibility = inferred.visibility;
+        }
       }
 
-      const dueDate = parseDateFromCommand(dueDateRaw);
-      if (!dueDate) {
-        return 'Due date format is invalid. Use YYYY-MM-DD, e.g. 2026-04-20.';
+      if (!title || !dueDate) {
+        return [
+          'I can create that task, but I need either structured or clear due-date input.',
+          'Try:',
+          '• `Create task: title | description | YYYY-MM-DD | general|personal`',
+          '• `Create a task with task name as Testing Payment functionality and deadline 10 days from today`'
+        ].join('\n');
       }
-
-      const visibility = visibilityRaw === 'personal' ? 'personal' : 'general';
 
       await db.collection('Projects').doc(projectId).collection('Tasks').add({
         title,
-        description,
+        description: description || `Task created by ${userName || 'user'} via assistant`,
         startDate: new Date(),
         endDate: dueDate,
         status: 'todo',
@@ -141,7 +198,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
         created_by: userName
       });
 
-      return `Done — I created \`${title}\` as a ${visibility} task due ${dueDate.toLocaleDateString()}.`;
+      return `Done — I created \`${title}\` as a ${visibility} task due ${dueDate.toLocaleDateString()} and assigned it to you.`;
     }
 
     if (lowerText.startsWith('move task')) {
@@ -223,6 +280,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
       'Try one of these:',
       '• Show tasks',
       '• Summarize tasks',
+      '• Create a task with task name as Testing Payment functionality and deadline 10 days from today',
       '• Create task: title | description | YYYY-MM-DD | general|personal',
       '• Move task <task-id> to inprogress',
       `Loaded tools: ${toolSummary}`
