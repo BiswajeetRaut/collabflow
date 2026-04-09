@@ -149,13 +149,13 @@ const linkifyText = (text) => {
     });
 
     return (
-      <div key={`line-${lineIndex}`}>
+      <div key={`line-${lineIndex}`} className="break-words">
         {resolvedParts.map((part, index) =>
           part.type === 'link' ? (
             <a
               key={`part-${lineIndex}-${index}`}
               href={part.href}
-              className="text-indigo-600 underline font-medium hover:text-indigo-800"
+              className="text-indigo-600 underline font-medium hover:text-indigo-800 break-all"
             >
               {part.value}
             </a>
@@ -427,15 +427,14 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 h-full w-full">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 h-full w-full p-4">
       <div
-        className="bg-white w-full max-w-md mx-auto rounded-lg shadow-lg"
+        className="bg-white w-full max-w-2xl mx-auto rounded-xl shadow-2xl"
         style={{
-          height: '85%',
-          width: '90%'
+          height: '85%'
         }}
       >
-        <div className="px-4 py-6 h-full">
+        <div className="px-4 py-4 h-full flex flex-col">
           <div className="flex justify-between items-center w-full mb-4">
             <h2 className="text-2xl font-bold text-gray-900">Agentic Chat Bot</h2>
             <div
@@ -448,7 +447,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
             </div>
           </div>
 
-          <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 mb-3">
+          <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 mb-3 shrink-0">
             <div className="flex items-center justify-between mb-2">
               <p className="font-semibold">Tools loaded</p>
               <div className="flex items-center gap-2">
@@ -475,18 +474,22 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
             </p>
           </div>
 
-          <div className="overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4" style={{ height: '66%' }}>
+          <div className="overflow-y-auto border border-gray-300 rounded-lg p-3 mb-3 flex-1 min-h-0 bg-gray-50/60">
             <div key="assistant-welcome" className="text-left mb-2">
-              <div className="inline-block px-4 py-2 bg-gray-200 rounded-lg">{linkifyText(responses[0].text)}</div>
+              <div className="inline-block max-w-[85%] px-4 py-2 bg-gray-200 rounded-xl text-sm text-gray-800 break-words">
+                {linkifyText(responses[0].text)}
+              </div>
             </div>
             {messages.map((message, index) => (
               <React.Fragment key={`message-${index}`}>
                 <div className="text-right mb-2">
-                  <p className="inline-block px-4 py-2 bg-purple-100 rounded-lg">{message.text}</p>
+                  <p className="inline-block max-w-[85%] px-4 py-2 bg-purple-100 rounded-xl text-sm text-gray-900 break-words">
+                    {message.text}
+                  </p>
                 </div>
                 {responses[index + 1] && (
                   <div key={`response-${index}`} className="text-left mb-2">
-                    <div className="inline-block px-4 py-2 bg-gray-200 rounded-lg whitespace-pre-wrap max-w-full">
+                    <div className="inline-block max-w-[85%] px-4 py-2 bg-gray-200 rounded-xl whitespace-pre-wrap text-sm text-gray-800 break-words">
                       {linkifyText(responses[index + 1].text)}
                     </div>
                   </div>
@@ -495,13 +498,13 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
             ))}
           </div>
 
-          <div className="flex overflow-x-auto">
+          <div className="flex items-center gap-2 shrink-0">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask me to list, summarize, create, or move tasks..."
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mr-2"
+              className="flex-grow min-w-0 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               onClick={handleSendMessage}
