@@ -12,7 +12,11 @@ const HOSTED_AGENT_TOOLS = [
   'add_subtask',
   'assign_task_member',
   'post_discussion_message',
-  'list_project_members'
+  'list_project_members',
+  'search_discussions',
+  'get_my_mentions',
+  'create_meet_link',
+  'schedule_reminder'
 ];
 
 const TOOL_DEFINITIONS = [
@@ -35,6 +39,16 @@ const TOOL_DEFINITIONS = [
     name: 'update_task_status',
     usage: 'Move task <task-id or task-title> to todo|inprogress|complete',
     purpose: 'Updates task workflow state so boards stay synced.'
+  },
+  {
+    name: 'search_discussions',
+    usage: 'Search discussion for <keyword>',
+    purpose: 'Finds matching discussion messages from recent project discussions.'
+  },
+  {
+    name: 'create_meet_link',
+    usage: 'Create meeting link for standup tomorrow 10am',
+    purpose: 'Generates and stores a shareable project meeting link.'
   }
 ];
 

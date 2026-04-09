@@ -58,6 +58,10 @@ REACT_APP_AGENT_API_URL=http://localhost:8080
 - `list_project_members`
 - `assign_task_member`
 - `post_discussion_message`
+- `search_discussions`
+- `get_my_mentions`
+- `create_meet_link`
+- `schedule_reminder`
 
 ## Firestore expectations
 

@@ -37,6 +37,32 @@ const messageSchema = z.object({
   message: z.string().min(1)
 });
 
+const searchDiscussionSchema = z.object({
+  projectId: z.string().min(1),
+  query: z.string().min(1)
+});
+
+const mentionSchema = z.object({
+  projectId: z.string().min(1),
+  userId: z.string().min(1)
+});
+
+const meetLinkSchema = z.object({
+  projectId: z.string().min(1),
+  createdByUserId: z.string().min(1),
+  title: z.string().min(1),
+  startsAt: z.string().min(1),
+  durationMinutes: z.number().int().positive().max(480).default(30)
+});
+
+const reminderSchema = z.object({
+  projectId: z.string().min(1),
+  createdByUserId: z.string().min(1),
+  title: z.string().min(1),
+  remindAt: z.string().min(1),
+  notes: z.string().optional()
+});
+
 export type ToolContext = {
   projectId: string;
   userId: string;
@@ -243,4 +269,104 @@ export const postDiscussionMessage = async (input: z.input<typeof messageSchema>
     });
 
   return { discussionId: ref.id };
+};
+
+export const searchDiscussions = async (input: z.input<typeof searchDiscussionSchema>) => {
+  const payload = searchDiscussionSchema.parse(input);
+  const needle = payload.query.toLowerCase();
+
+  const snapshot = await admin
+    .firestore()
+    .collection('Projects')
+    .doc(payload.projectId)
+    .collection('Discussions')
+    .orderBy('createdAt', 'desc')
+    .limit(100)
+    .get();
+
+  const matches = snapshot.docs
+    .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => ({ id: doc.id, ...doc.data() }))
+    .filter((item: any) => String(item.message || '').toLowerCase().includes(needle))
+    .slice(0, 20)
+    .map((item: any) => ({
+      id: item.id,
+      message: item.message,
+      name: item.name || 'Unknown',
+      createdAt: toDate(item.createdAt)?.toISOString() || null
+    }));
+
+  return { query: payload.query, results: matches };
+};
+
+export const getMyMentions = async (input: z.input<typeof mentionSchema>) => {
+  const payload = mentionSchema.parse(input);
+
+  const snapshot = await admin
+    .firestore()
+    .collection('Projects')
+    .doc(payload.projectId)
+    .collection('Discussions')
+    .orderBy('createdAt', 'desc')
+    .limit(100)
+    .get();
+
+  const mentions = snapshot.docs
+    .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => ({ id: doc.id, ...doc.data() }))
+    .filter((item: any) => {
+      const mentioned = (item.mentions || []) as Array<any>;
+      return mentioned.some((m) => m?.id === payload.userId || m?.userid === payload.userId);
+    })
+    .slice(0, 20)
+    .map((item: any) => ({
+      id: item.id,
+      message: item.message,
+      name: item.name || 'Unknown',
+      createdAt: toDate(item.createdAt)?.toISOString() || null
+    }));
+
+  return { mentions };
+};
+
+export const createMeetLink = async (input: z.input<typeof meetLinkSchema>) => {
+  const payload = meetLinkSchema.parse(input);
+  const startsAt = normalizeDate(payload.startsAt);
+  const meetingId = admin.firestore().collection('_').doc().id;
+  const meetUrl = `https://meet.google.com/${meetingId.slice(0, 3)}-${meetingId.slice(3, 7)}-${meetingId.slice(7, 10)}`;
+
+  const ref = await admin
+    .firestore()
+    .collection('Projects')
+    .doc(payload.projectId)
+    .collection('Meetings')
+    .add({
+      title: payload.title,
+      startsAt,
+      durationMinutes: payload.durationMinutes,
+      meetUrl,
+      createdByUserId: payload.createdByUserId,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+  return { meetingId: ref.id, title: payload.title, startsAt: startsAt.toISOString(), meetUrl };
+};
+
+export const scheduleReminder = async (input: z.input<typeof reminderSchema>) => {
+  const payload = reminderSchema.parse(input);
+  const remindAt = normalizeDate(payload.remindAt);
+
+  const ref = await admin
+    .firestore()
+    .collection('Projects')
+    .doc(payload.projectId)
+    .collection('Reminders')
+    .add({
+      title: payload.title,
+      remindAt,
+      notes: payload.notes || '',
+      createdByUserId: payload.createdByUserId,
+      status: 'scheduled',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+  return { reminderId: ref.id, title: payload.title, remindAt: remindAt.toISOString(), status: 'scheduled' };
 };

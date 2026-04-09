@@ -3,10 +3,14 @@ import { z } from 'zod';
 import {
   addSubtask,
   assignTaskMember,
+  createMeetLink,
   createTask,
+  getMyMentions,
   getProjectMembers,
   listTasks,
   postDiscussionMessage,
+  scheduleReminder,
+  searchDiscussions,
   taskSummary,
   updateTaskStatus,
   type ToolContext
@@ -80,6 +84,24 @@ const postDiscussionSchema = z.object({
   message: z.string().min(1)
 });
 
+const searchDiscussionSchema = z.object({
+  query: z.string().min(1)
+});
+
+const mentionSchema = z.object({});
+
+const createMeetLinkSchema = z.object({
+  title: z.string().min(1),
+  startsAt: z.string().min(1),
+  durationMinutes: z.number().int().positive().max(480).default(30)
+});
+
+const scheduleReminderSchema = z.object({
+  title: z.string().min(1),
+  remindAt: z.string().min(1),
+  notes: z.string().optional()
+});
+
 const createTaskInputSchema = {
   type: 'object',
   properties: {
@@ -124,6 +146,40 @@ const postDiscussionInputSchema = {
     message: { type: 'string' }
   },
   required: ['message']
+};
+
+const searchDiscussionInputSchema = {
+  type: 'object',
+  properties: {
+    query: { type: 'string' }
+  },
+  required: ['query']
+};
+
+const mentionInputSchema = {
+  type: 'object',
+  properties: {},
+  required: []
+};
+
+const createMeetLinkInputSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    startsAt: { type: 'string', description: 'ISO datetime preferred' },
+    durationMinutes: { type: 'number' }
+  },
+  required: ['title', 'startsAt']
+};
+
+const scheduleReminderInputSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    remindAt: { type: 'string', description: 'ISO datetime preferred' },
+    notes: { type: 'string' }
+  },
+  required: ['title', 'remindAt']
 };
 
 const createAgent = (context: ToolContext) =>
@@ -204,6 +260,56 @@ const createAgent = (context: ToolContext) =>
             userName: context.userName,
             userPhoto: context.userPhoto,
             message: args.message
+          })
+        )
+      ),
+      formatTool(
+        'search_discussions',
+        'Search discussion messages by query text.',
+        searchDiscussionInputSchema,
+        withSchema(searchDiscussionSchema, async (args: z.infer<typeof searchDiscussionSchema>) =>
+          searchDiscussions({
+            projectId: context.projectId,
+            query: args.query
+          })
+        )
+      ),
+      formatTool(
+        'get_my_mentions',
+        'Get latest discussion messages that mention the current user.',
+        mentionInputSchema,
+        withSchema(mentionSchema, async () =>
+          getMyMentions({
+            projectId: context.projectId,
+            userId: context.userId
+          })
+        )
+      ),
+      formatTool(
+        'create_meet_link',
+        'Create a meeting link for the project.',
+        createMeetLinkInputSchema,
+        withSchema(createMeetLinkSchema, async (args: z.infer<typeof createMeetLinkSchema>) =>
+          createMeetLink({
+            projectId: context.projectId,
+            createdByUserId: context.userId,
+            title: args.title,
+            startsAt: args.startsAt,
+            durationMinutes: args.durationMinutes
+          })
+        )
+      ),
+      formatTool(
+        'schedule_reminder',
+        'Schedule a reminder for the project.',
+        scheduleReminderInputSchema,
+        withSchema(scheduleReminderSchema, async (args: z.infer<typeof scheduleReminderSchema>) =>
+          scheduleReminder({
+            projectId: context.projectId,
+            createdByUserId: context.userId,
+            title: args.title,
+            remindAt: args.remindAt,
+            notes: args.notes
           })
         )
       )

@@ -6,10 +6,14 @@ import { z } from 'zod';
 import {
   addSubtask,
   assignTaskMember,
+  createMeetLink,
   createTask,
+  getMyMentions,
   getProjectMembers,
   listTasks,
   postDiscussionMessage,
+  scheduleReminder,
+  searchDiscussions,
   taskSummary,
   updateTaskStatus,
   type ToolContext
@@ -138,6 +142,63 @@ const createTools = (context: ToolContext) => [
       description: 'Post project discussion message.',
       schema: z.object({
         message: z.string().min(1)
+      })
+    }
+  ),
+  tool(
+    async (args: { query: string }) =>
+      searchDiscussions({
+        projectId: context.projectId,
+        query: args.query
+      }),
+    {
+      name: 'search_discussions',
+      description: 'Search discussion messages by keyword.',
+      schema: z.object({
+        query: z.string().min(1)
+      })
+    }
+  ),
+  tool(async () => getMyMentions({ projectId: context.projectId, userId: context.userId }), {
+    name: 'get_my_mentions',
+    description: 'Get latest discussion mentions for the current user.',
+    schema: z.object({})
+  }),
+  tool(
+    async (args: { title: string; startsAt: string; durationMinutes?: number }) =>
+      createMeetLink({
+        projectId: context.projectId,
+        createdByUserId: context.userId,
+        title: args.title,
+        startsAt: args.startsAt,
+        durationMinutes: args.durationMinutes || 30
+      }),
+    {
+      name: 'create_meet_link',
+      description: 'Create and return a meeting link.',
+      schema: z.object({
+        title: z.string().min(1),
+        startsAt: z.string().min(1),
+        durationMinutes: z.number().int().positive().max(480).optional()
+      })
+    }
+  ),
+  tool(
+    async (args: { title: string; remindAt: string; notes?: string }) =>
+      scheduleReminder({
+        projectId: context.projectId,
+        createdByUserId: context.userId,
+        title: args.title,
+        remindAt: args.remindAt,
+        notes: args.notes
+      }),
+    {
+      name: 'schedule_reminder',
+      description: 'Schedule a reminder for the current project.',
+      schema: z.object({
+        title: z.string().min(1),
+        remindAt: z.string().min(1),
+        notes: z.string().optional()
       })
     }
   )
