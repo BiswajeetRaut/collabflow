@@ -1,4 +1,5 @@
 import { LlmAgent } from '@google/adk';
+import { z } from 'zod';
 import {
   addSubtask,
   assignTaskMember,
@@ -33,13 +34,97 @@ Behavior requirements:
 3) Use taskIdOrTitle as either task id or task title.
 4) If required fields are missing, ask one concise follow-up question.
 5) Keep final replies concise, practical, and user-focused.
+6) Available tools are strongly typed; provide required arguments exactly.
 `;
 
-const formatTool = (name: string, description: string, execute: (args: any) => Promise<any>) => ({
+const withSchema = <T>(
+  schema: z.ZodType<T>,
+  execute: (args: T) => Promise<any>
+) => async (args: unknown) => execute(schema.parse(args));
+
+const formatTool = (
+  name: string,
+  description: string,
+  inputSchema: unknown,
+  execute: (args: any) => Promise<any>
+) => ({
   name,
   description,
+  input_schema: inputSchema,
   execute
 });
+
+const createTaskSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  dueDate: z.string().min(1).describe('Date in YYYY-MM-DD format'),
+  visibility: z.enum(['general', 'personal']).default('general')
+});
+
+const updateTaskStatusSchema = z.object({
+  taskIdOrTitle: z.string().min(1),
+  status: z.enum(['todo', 'inprogress', 'complete'])
+});
+
+const addSubtaskSchema = z.object({
+  taskIdOrTitle: z.string().min(1),
+  subtaskTitle: z.string().min(1)
+});
+
+const assignTaskMemberSchema = z.object({
+  taskIdOrTitle: z.string().min(1),
+  memberIdOrName: z.string().min(1)
+});
+
+const postDiscussionSchema = z.object({
+  message: z.string().min(1)
+});
+
+const createTaskInputSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    description: { type: 'string' },
+    dueDate: { type: 'string', description: 'Date in YYYY-MM-DD format' },
+    visibility: { type: 'string', enum: ['general', 'personal'] }
+  },
+  required: ['title', 'description', 'dueDate']
+};
+
+const updateTaskStatusInputSchema = {
+  type: 'object',
+  properties: {
+    taskIdOrTitle: { type: 'string' },
+    status: { type: 'string', enum: ['todo', 'inprogress', 'complete'] }
+  },
+  required: ['taskIdOrTitle', 'status']
+};
+
+const addSubtaskInputSchema = {
+  type: 'object',
+  properties: {
+    taskIdOrTitle: { type: 'string' },
+    subtaskTitle: { type: 'string' }
+  },
+  required: ['taskIdOrTitle', 'subtaskTitle']
+};
+
+const assignTaskMemberInputSchema = {
+  type: 'object',
+  properties: {
+    taskIdOrTitle: { type: 'string' },
+    memberIdOrName: { type: 'string' }
+  },
+  required: ['taskIdOrTitle', 'memberIdOrName']
+};
+
+const postDiscussionInputSchema = {
+  type: 'object',
+  properties: {
+    message: { type: 'string' }
+  },
+  required: ['message']
+};
 
 const createAgent = (context: ToolContext) =>
   new LlmAgent({
@@ -47,55 +132,80 @@ const createAgent = (context: ToolContext) =>
     model: GEMINI_MODEL,
     instruction: agentPrompt,
     tools: [
-      formatTool('list_tasks', 'List tasks visible to the current user.', async () =>
+      formatTool('list_tasks', 'List tasks visible to the current user.', {}, async () =>
         listTasks({ projectId: context.projectId, userId: context.userId })
       ),
-      formatTool('task_summary', 'Get summary counts and priority for current tasks.', async () =>
+      formatTool('task_summary', 'Get summary counts and priority for current tasks.', {}, async () =>
         taskSummary({ projectId: context.projectId, userId: context.userId })
       ),
-      formatTool('create_task', 'Create a task in the project.', async (args) =>
-        createTask({
-          projectId: context.projectId,
-          userId: context.userId,
-          userName: context.userName,
-          title: args.title,
-          description: args.description,
-          dueDate: args.dueDate,
-          visibility: args.visibility || 'general'
-        })
+      formatTool(
+        'create_task',
+        'Create a task in the project. Use this whenever user asks to create/add a task.',
+        createTaskInputSchema,
+        withSchema(createTaskSchema, async (args: z.infer<typeof createTaskSchema>) =>
+          createTask({
+            projectId: context.projectId,
+            userId: context.userId,
+            userName: context.userName,
+            title: args.title,
+            description: args.description,
+            dueDate: args.dueDate,
+            visibility: args.visibility || 'general'
+          })
+        )
       ),
-      formatTool('update_task_status', 'Update task status by task id or title.', async (args) =>
-        updateTaskStatus({
-          projectId: context.projectId,
-          taskIdOrTitle: args.taskIdOrTitle,
-          status: args.status
-        })
+      formatTool(
+        'update_task_status',
+        'Update task status by task id or task title.',
+        updateTaskStatusInputSchema,
+        withSchema(updateTaskStatusSchema, async (args: z.infer<typeof updateTaskStatusSchema>) =>
+          updateTaskStatus({
+            projectId: context.projectId,
+            taskIdOrTitle: args.taskIdOrTitle,
+            status: args.status
+          })
+        )
       ),
-      formatTool('add_subtask', 'Add a subtask to task by task id or title.', async (args) =>
-        addSubtask({
-          projectId: context.projectId,
-          taskIdOrTitle: args.taskIdOrTitle,
-          subtaskTitle: args.subtaskTitle
-        })
+      formatTool(
+        'add_subtask',
+        'Add a subtask to task by task id or title.',
+        addSubtaskInputSchema,
+        withSchema(addSubtaskSchema, async (args: z.infer<typeof addSubtaskSchema>) =>
+          addSubtask({
+            projectId: context.projectId,
+            taskIdOrTitle: args.taskIdOrTitle,
+            subtaskTitle: args.subtaskTitle
+          })
+        )
       ),
-      formatTool('list_project_members', 'List all project members.', async () =>
+      formatTool('list_project_members', 'List all project members.', {}, async () =>
         getProjectMembers(context.projectId)
       ),
-      formatTool('assign_task_member', 'Assign a member to task by task id/title.', async (args) =>
-        assignTaskMember({
-          projectId: context.projectId,
-          taskIdOrTitle: args.taskIdOrTitle,
-          memberIdOrName: args.memberIdOrName
-        })
+      formatTool(
+        'assign_task_member',
+        'Assign a member to task by task id/title.',
+        assignTaskMemberInputSchema,
+        withSchema(assignTaskMemberSchema, async (args: z.infer<typeof assignTaskMemberSchema>) =>
+          assignTaskMember({
+            projectId: context.projectId,
+            taskIdOrTitle: args.taskIdOrTitle,
+            memberIdOrName: args.memberIdOrName
+          })
+        )
       ),
-      formatTool('post_discussion_message', 'Post a message in project discussions.', async (args) =>
-        postDiscussionMessage({
-          projectId: context.projectId,
-          userId: context.userId,
-          userName: context.userName,
-          userPhoto: context.userPhoto,
-          message: args.message
-        })
+      formatTool(
+        'post_discussion_message',
+        'Post a message in project discussions.',
+        postDiscussionInputSchema,
+        withSchema(postDiscussionSchema, async (args: z.infer<typeof postDiscussionSchema>) =>
+          postDiscussionMessage({
+            projectId: context.projectId,
+            userId: context.userId,
+            userName: context.userName,
+            userPhoto: context.userPhoto,
+            message: args.message
+          })
+        )
       )
     ]
   });
