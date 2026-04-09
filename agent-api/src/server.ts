@@ -48,13 +48,14 @@ app.post('/v1/agent/chat', async (req, res) => {
       projectId: payload.projectId,
       userId: payload.userId,
       userName: payload.userName,
-      userPhoto: payload.userPhoto
+      userPhoto: payload.userPhoto,
+      history: payload.history
     });
 
     res.json({
       reply: String(result?.text || result || 'No response from agent.'),
       provider: 'google-adk',
-      mode: 'multi-agent'
+      mode: 'multi-agent-contextual'
     });
   } catch (error: any) {
     res.status(400).json({

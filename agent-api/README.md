@@ -1,10 +1,11 @@
 # CollabFlow Agent API (Google ADK)
 
-This service adds an **LLM decision layer** for the chatbot using **Google ADK** with a multi-agent pattern:
+This service adds an **LLM decision layer** for the chatbot using **Google ADK** and Gemini models:
 
-- `router_agent` decides who should handle the request.
+- `router_agent` decides whether task operations, collaboration operations, or a direct chat reply is needed.
 - `task_ops_agent` handles task tools.
 - `collaboration_agent` handles members/discussions.
+- The API accepts optional conversation `history` for context-sensitive routing/replies.
 
 ## Endpoints
 
@@ -19,7 +20,8 @@ This service adds an **LLM decision layer** for the chatbot using **Google ADK**
   "userId": "...",
   "userName": "...",
   "userPhoto": "...",
-  "message": "Create task to finish QA by Friday"
+  "message": "Create task to finish QA by Friday",
+  "history": [{ "role": "user", "text": "previous turn" }]
 }
 ```
 
@@ -29,6 +31,7 @@ This service adds an **LLM decision layer** for the chatbot using **Google ADK**
 cd agent-api
 npm install
 cp .env.example .env
+# edit .env and set GOOGLE_API_KEY + Firebase Admin values
 npm run dev
 ```
 
