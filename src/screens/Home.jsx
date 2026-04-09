@@ -33,7 +33,7 @@ const Home = () => {
     const [chatgpt, setchatgpt] = useState(false);
     const [messages, setMessages] = useState([]);
     const [responses, setResponses] = useState([{
-        text: "Hola I am your assistant. I will help you regarding planning, scheduling any technical issues you are having while doing your task."
+        text: "Hi! I am your CollabFlow agent. I can list tasks, summarize priorities, create tasks, and update task status using built-in project tools. Type /help to see commands."
 
     }]);
     return (
