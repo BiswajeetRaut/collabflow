@@ -25,7 +25,8 @@ const requestSchema = z.object({
   userName: z.string().min(1),
   userPhoto: z.string().optional(),
   message: z.string().min(1),
-  history: z.array(z.object({ role: z.string(), text: z.string() })).optional()
+  history: z.array(z.object({ role: z.string(), text: z.string() })).optional(),
+  agentMode: z.enum(['adk', 'langgraph']).optional()
 });
 
 app.get('/health', (_req, res) => {
@@ -36,12 +37,16 @@ app.post('/v1/agent/chat', async (req, res) => {
   try {
     const payload = requestSchema.parse(req.body);
 
-    const agent = createRootAgent({
-      projectId: payload.projectId,
-      userId: payload.userId,
-      userName: payload.userName,
-      userPhoto: payload.userPhoto
-    });
+    const mode = payload.agentMode || 'adk';
+    const agent = createRootAgent(
+      {
+        projectId: payload.projectId,
+        userId: payload.userId,
+        userName: payload.userName,
+        userPhoto: payload.userPhoto
+      },
+      mode
+    );
 
     const result = await agent.run({
       message: payload.message,
@@ -54,8 +59,8 @@ app.post('/v1/agent/chat', async (req, res) => {
 
     res.json({
       reply: String(result?.text || result || 'No response from agent.'),
-      provider: 'google-adk',
-      mode: 'multi-agent-contextual'
+      provider: mode === 'langgraph' ? 'langgraph-gemini' : 'google-adk-gemini',
+      mode: 'agentic-tool-calling'
     });
   } catch (error: any) {
     res.status(400).json({

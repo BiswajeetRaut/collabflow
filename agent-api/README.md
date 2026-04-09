@@ -1,11 +1,13 @@
-# CollabFlow Agent API (Google ADK)
+# CollabFlow Agent API (Google ADK + Gemini)
 
-This service adds an **LLM decision layer** for the chatbot using **Google ADK** and Gemini models:
+Yes — this is absolutely possible with Google ADK.
 
-- `router_agent` decides whether task operations, collaboration operations, or a direct chat reply is needed.
-- `task_ops_agent` handles task tools.
-- `collaboration_agent` handles members/discussions.
-- The API accepts optional conversation `history` for context-sensitive routing/replies.
+This service uses **Google ADK** + **Gemini** to run an agentic chatbot that can understand natural language (including complex, multi-step requests) and invoke project tools in sequence.
+
+- Single ADK agent with a shared tool registry.
+- Optional LangGraph agent path for advanced ReAct-style orchestration.
+- Handles task + collaboration flows in one conversation.
+- Accepts optional conversation `history` for context-aware responses.
 
 ## Endpoints
 
@@ -20,10 +22,15 @@ This service adds an **LLM decision layer** for the chatbot using **Google ADK**
   "userId": "...",
   "userName": "...",
   "userPhoto": "...",
-  "message": "Create task to finish QA by Friday",
+  "agentMode": "adk",
+  "message": "Create a QA task due tomorrow, assign Priya, then post an update in discussion",
   "history": [{ "role": "user", "text": "previous turn" }]
 }
 ```
+
+`agentMode` options:
+- `adk` (default): Google ADK Gemini agent
+- `langgraph`: LangGraph ReAct-style Gemini agent
 
 ## Local run
 
@@ -35,23 +42,29 @@ cp .env.example .env
 npm run dev
 ```
 
-Then set in frontend `.env`:
+Then set frontend `.env`:
 
 ```bash
 REACT_APP_AGENT_API_URL=http://localhost:8080
 ```
 
+## Tool coverage
+
+- `list_tasks`
+- `task_summary`
+- `create_task`
+- `update_task_status`
+- `add_subtask`
+- `list_project_members`
+- `assign_task_member`
+- `post_discussion_message`
+- `search_discussions`
+- `get_my_mentions`
+- `create_meet_link`
+- `schedule_reminder`
+
 ## Firestore expectations
 
 - `Projects/{projectId}` has `members[]`
 - `Projects/{projectId}/Tasks/{taskId}` task documents
-- `Projects/{projectId}/Tasks/{taskId}/SubTasks/{subTaskId}` subtasks
 - `Projects/{projectId}/Discussions/{messageId}` discussion items
-
-## Production hardening checklist
-
-1. Verify Firebase Auth token in middleware.
-2. Enforce project membership before tool execution.
-3. Add rate limiting and audit logs.
-4. Add tool allow-list and argument schema checks.
-5. Add observability traces and tool latency metrics.

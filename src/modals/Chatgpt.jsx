@@ -12,7 +12,11 @@ const HOSTED_AGENT_TOOLS = [
   'add_subtask',
   'assign_task_member',
   'post_discussion_message',
-  'list_project_members'
+  'list_project_members',
+  'search_discussions',
+  'get_my_mentions',
+  'create_meet_link',
+  'schedule_reminder'
 ];
 
 const TOOL_DEFINITIONS = [
@@ -35,6 +39,16 @@ const TOOL_DEFINITIONS = [
     name: 'update_task_status',
     usage: 'Move task <task-id or task-title> to todo|inprogress|complete',
     purpose: 'Updates task workflow state so boards stay synced.'
+  },
+  {
+    name: 'search_discussions',
+    usage: 'Search discussion for <keyword>',
+    purpose: 'Finds matching discussion messages from recent project discussions.'
+  },
+  {
+    name: 'create_meet_link',
+    usage: 'Create meeting link for standup tomorrow 10am',
+    purpose: 'Generates and stores a shareable project meeting link.'
   }
 ];
 
@@ -58,10 +72,114 @@ const parseDateFromCommand = (value) => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
+const getDateDaysFromToday = (days) => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+const inferNaturalCreateTaskInput = (text) => {
+  const lower = text.toLowerCase();
+  const isCreateIntent =
+    lower.includes('create') &&
+    (lower.includes('task') || lower.includes('todo')) &&
+    (lower.includes('deadline') || lower.includes('due') || lower.includes('by'));
+
+  if (!isCreateIntent) return null;
+
+  const titleMatch =
+    text.match(/task name(?: as| is)?\s+["“]?(.+?)["”]?(?:\s+and|\s+with|\s+deadline|\s+due|$)/i) ||
+    text.match(/create (?:a )?task(?: called| named)?\s+["“]?(.+?)["”]?(?:\s+and|\s+with|\s+deadline|\s+due|$)/i);
+
+  const daysMatch = text.match(/(\d+)\s*(?:business\s*)?days?\s*(?:from\s+today|later|out)?/i);
+  const explicitDateMatch = text.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+
+  const title = titleMatch?.[1]?.trim();
+  const dueDate = explicitDateMatch?.[1]
+    ? parseDateFromCommand(explicitDateMatch[1])
+    : daysMatch
+      ? getDateDaysFromToday(Number(daysMatch[1]))
+      : null;
+
+  if (!title || !dueDate) return null;
+
+  return {
+    title,
+    description: `Created from chat request: ${text}`,
+    dueDate,
+    visibility: lower.includes('personal') ? 'personal' : 'general'
+  };
+};
+
 const formatTaskLine = (task) => {
   const dueDate = task.endDate?.toDate ? task.endDate.toDate() : task.endDate;
   const due = dueDate ? new Date(dueDate).toLocaleDateString() : 'N/A';
-  return `• ${task.title} (id: ${task.id}, status: ${task.status}, due: ${due})`;
+  return `• ${task.title} (status: ${task.status}, due: ${due}) → ${window.location.origin}/task/${task.id}`;
+};
+
+const linkifyText = (text) => {
+  const markdownRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  return text.split('\n').map((line, lineIndex) => {
+    const markdownParts = [];
+    let cursor = 0;
+    let markdownMatch;
+
+    while ((markdownMatch = markdownRegex.exec(line)) !== null) {
+      if (markdownMatch.index > cursor) {
+        markdownParts.push({ type: 'text', value: line.slice(cursor, markdownMatch.index) });
+      }
+      markdownParts.push({
+        type: 'link',
+        value: markdownMatch[1],
+        href: markdownMatch[2]
+      });
+      cursor = markdownRegex.lastIndex;
+    }
+
+    if (cursor < line.length) {
+      markdownParts.push({ type: 'text', value: line.slice(cursor) });
+    }
+
+    const resolvedParts = markdownParts.flatMap((part) => {
+      if (part.type === 'link') return [part];
+
+      const pieces = [];
+      let textCursor = 0;
+      let urlMatch;
+      while ((urlMatch = urlRegex.exec(part.value)) !== null) {
+        if (urlMatch.index > textCursor) {
+          pieces.push({ type: 'text', value: part.value.slice(textCursor, urlMatch.index) });
+        }
+        pieces.push({ type: 'link', value: 'Open', href: urlMatch[1] });
+        textCursor = urlRegex.lastIndex;
+      }
+      if (textCursor < part.value.length) {
+        pieces.push({ type: 'text', value: part.value.slice(textCursor) });
+      }
+      return pieces;
+    });
+
+    return (
+      <div key={`line-${lineIndex}`} className="break-words">
+        {resolvedParts.map((part, index) =>
+          part.type === 'link' ? (
+            <a
+              key={`part-${lineIndex}-${index}`}
+              href={part.href}
+              className="text-indigo-600 underline font-medium hover:text-indigo-800 break-all"
+            >
+              {part.value}
+            </a>
+          ) : (
+            <span key={`part-${lineIndex}-${index}`}>{part.value}</span>
+          )
+        )}
+      </div>
+    );
+  });
 };
 
 const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses }) => {
@@ -71,6 +189,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [agentMode, setAgentMode] = useState('adk');
   const agentApiUrl = process.env.REACT_APP_AGENT_API_URL;
 
   const toolSummary = useMemo(
@@ -115,24 +234,41 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
       ].join('\n');
     }
 
-    if (lowerText.startsWith('create task:')) {
-      const payload = text.replace(/create task:/i, '').split('|').map((item) => item.trim());
-      const [title, description, dueDateRaw, visibilityRaw] = payload;
+    if (lowerText.startsWith('create task:') || lowerText.includes('create') || lowerText.includes('deadline')) {
+      let title;
+      let description;
+      let dueDate;
+      let visibility = 'general';
 
-      if (!title || !description || !dueDateRaw) {
-        return 'I need: `Create task: title | description | YYYY-MM-DD | general|personal`.';
+      if (lowerText.startsWith('create task:')) {
+        const payload = text.replace(/create task:/i, '').split('|').map((item) => item.trim());
+        const [titleRaw, descriptionRaw, dueDateRaw, visibilityRaw] = payload;
+        title = titleRaw;
+        description = descriptionRaw;
+        dueDate = parseDateFromCommand(dueDateRaw);
+        visibility = visibilityRaw === 'personal' ? 'personal' : 'general';
+      } else {
+        const inferred = inferNaturalCreateTaskInput(text);
+        if (inferred) {
+          title = inferred.title;
+          description = inferred.description;
+          dueDate = inferred.dueDate;
+          visibility = inferred.visibility;
+        }
       }
 
-      const dueDate = parseDateFromCommand(dueDateRaw);
-      if (!dueDate) {
-        return 'Due date format is invalid. Use YYYY-MM-DD, e.g. 2026-04-20.';
+      if (!title || !dueDate) {
+        return [
+          'I can create that task, but I need either structured or clear due-date input.',
+          'Try:',
+          '• `Create task: title | description | YYYY-MM-DD | general|personal`',
+          '• `Create a task with task name as Testing Payment functionality and deadline 10 days from today`'
+        ].join('\n');
       }
 
-      const visibility = visibilityRaw === 'personal' ? 'personal' : 'general';
-
-      await db.collection('Projects').doc(projectId).collection('Tasks').add({
+      const createdRef = await db.collection('Projects').doc(projectId).collection('Tasks').add({
         title,
-        description,
+        description: description || `Task created by ${userName || 'user'} via assistant`,
         startDate: new Date(),
         endDate: dueDate,
         status: 'todo',
@@ -141,7 +277,14 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
         created_by: userName
       });
 
-      return `Done — I created \`${title}\` as a ${visibility} task due ${dueDate.toLocaleDateString()}.`;
+      const taskUrl = `${window.location.origin}/task/${createdRef.id}`;
+      return [
+        `✅ Created: ${title}`,
+        `• Visibility: ${visibility}`,
+        `• Due: ${dueDate.toLocaleDateString()}`,
+        `• Assigned to: ${userName || 'you'}`,
+        `[Open task](${taskUrl})`
+      ].join('\n');
     }
 
     if (lowerText.startsWith('move task')) {
@@ -223,6 +366,7 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
       'Try one of these:',
       '• Show tasks',
       '• Summarize tasks',
+      '• Create a task with task name as Testing Payment functionality and deadline 10 days from today',
       '• Create task: title | description | YYYY-MM-DD | general|personal',
       '• Move task <task-id> to inprogress',
       `Loaded tools: ${toolSummary}`
@@ -246,7 +390,8 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
           ...messages.map((entry) => ({ role: 'user', text: entry.text })),
           ...responses.map((entry) => ({ role: 'assistant', text: entry.text }))
         ],
-        availableTools: HOSTED_AGENT_TOOLS
+        availableTools: HOSTED_AGENT_TOOLS,
+        agentMode
       })
     });
 
@@ -296,15 +441,14 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 h-full w-full">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 h-full w-full p-4">
       <div
-        className="bg-white w-full max-w-md mx-auto rounded-lg shadow-lg"
+        className="bg-white w-full max-w-2xl mx-auto rounded-xl shadow-2xl"
         style={{
-          height: '85%',
-          width: '90%'
+          height: '85%'
         }}
       >
-        <div className="px-4 py-6 h-full">
+        <div className="px-4 py-4 h-full flex flex-col">
           <div className="flex justify-between items-center w-full mb-4">
             <h2 className="text-2xl font-bold text-gray-900">Agentic Chat Bot</h2>
             <div
@@ -317,8 +461,21 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
             </div>
           </div>
 
-          <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 mb-3">
-            <p className="font-semibold mb-1">Tools loaded</p>
+          <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 mb-3 shrink-0">
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-semibold">Tools loaded</p>
+              <div className="flex items-center gap-2">
+                <label className="text-[11px] font-semibold text-gray-500">Engine</label>
+                <select
+                  value={agentMode}
+                  onChange={(e) => setAgentMode(e.target.value)}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-white text-[11px] font-medium"
+                >
+                  <option value="adk">Gemini ADK</option>
+                  <option value="langgraph">Gemini LangGraph</option>
+                </select>
+              </div>
+            </div>
             <ul className="list-disc pl-4 space-y-1">
               {HOSTED_AGENT_TOOLS.map((toolName) => (
                 <li key={toolName}>
@@ -327,37 +484,41 @@ const ChatGPT = ({ setchatgpt, messages, responses, setMessages, setResponses })
               ))}
             </ul>
             <p className="mt-2">
-              Mode: {agentApiUrl ? 'Hosted API + local fallback' : 'Local tools only'}
+              Mode: {agentApiUrl ? `Hosted API (${agentMode}) + local fallback` : 'Local tools only'}
             </p>
           </div>
 
-          <div className="overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4" style={{ height: '66%' }}>
+          <div className="overflow-y-auto border border-gray-300 rounded-lg p-3 mb-3 flex-1 min-h-0 bg-gray-50/60">
             <div key="assistant-welcome" className="text-left mb-2">
-              <p className="inline-block px-4 py-2 bg-gray-200 rounded-lg">{responses[0].text}</p>
+              <div className="inline-block max-w-[85%] px-4 py-2 bg-gray-200 rounded-xl text-sm text-gray-800 break-words">
+                {linkifyText(responses[0].text)}
+              </div>
             </div>
             {messages.map((message, index) => (
               <React.Fragment key={`message-${index}`}>
                 <div className="text-right mb-2">
-                  <p className="inline-block px-4 py-2 bg-purple-100 rounded-lg">{message.text}</p>
+                  <p className="inline-block max-w-[85%] px-4 py-2 bg-purple-100 rounded-xl text-sm text-gray-900 break-words">
+                    {message.text}
+                  </p>
                 </div>
                 {responses[index + 1] && (
                   <div key={`response-${index}`} className="text-left mb-2">
-                    <p className="inline-block px-4 py-2 bg-gray-200 rounded-lg whitespace-pre-wrap">
-                      {responses[index + 1].text}
-                    </p>
+                    <div className="inline-block max-w-[85%] px-4 py-2 bg-gray-200 rounded-xl whitespace-pre-wrap text-sm text-gray-800 break-words">
+                      {linkifyText(responses[index + 1].text)}
+                    </div>
                   </div>
                 )}
               </React.Fragment>
             ))}
           </div>
 
-          <div className="flex overflow-x-auto">
+          <div className="flex items-center gap-2 shrink-0">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask me to list, summarize, create, or move tasks..."
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mr-2"
+              className="flex-grow min-w-0 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               onClick={handleSendMessage}
